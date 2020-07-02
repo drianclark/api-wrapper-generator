@@ -1,14 +1,41 @@
 from prance import ResolvingParser
+import json
 
-specs = ResolvingParser("spotify-mt-oas3.yaml").specification
+# specs = ResolvingParser("spotify-mt-oas3.yaml").specification
 
-paths = specs["paths"]
+# paths = specs["paths"]
 
-for endpoint, methodObject in paths.items():
-    print(endpoint)
-    for method, info in methodObject.items():
-        print(method)
-        print(info)
+# for endpoint, methodObject in paths.items():
+#     # print(endpoint)
+#     for method, info in methodObject.items():
+#         # print(method)
+#         # print(info)
+        
+with open("hydrology-oas.json") as f:
+    specs = json.load(f)
+    paths = specs["paths"]
+    
+    endpoints = {}
+    
+    for endpoint, endpointInfo in paths.items():
+        
+        # --- collecting all distinct endpoints, ignoring the _view params ---
+        if "?_view" not in endpoint:
+            endpoints[endpoint] = [endpoint]
+        else:
+            # get base endpoint, which is the string before the '?'
+            baseEndpoint = endpoint.split('?',1)[0]
+            endpoints[baseEndpoint].append(endpoint)
+            
+        # ---
+        
+        for param in endpointInfo["get"]["parameters"]:
+            for k,v in param.items():
+                print(f"{k}: {v}")
+            
+        print()
+            
+
     
 """
 write a function that takes an input:
