@@ -10,7 +10,26 @@ import json
 #     for method, info in methodObject.items():
 #         # print(method)
 #         # print(info)
-        
+def kebabToCamel(s):
+    iterchars = iter(s.split("-"))
+    result = s.split("-")[0]
+    next(iterchars)
+    
+    for word in iterchars:
+        result += word.capitalize()
+    
+    return result
+
+def dotToCamel(s):
+    if "." not in s:
+        return s
+    
+    splitString = (s.split(".", 1))
+    if splitString[0] in splitString[1]:
+        return splitString[1]
+    else:
+        return splitString[0] + splitString[1][0].upper() + splitString[1][1:]
+
 with open("hydrology-oas.json") as f:
     specs = json.load(f)
     paths = specs["paths"]
@@ -43,20 +62,57 @@ with open("hydrology-oas.json") as f:
 write a function that takes an input:
     1. a function name
     2. endpoint url
-    3. http method
-    4. list of parameters
+    3. list of parameters
     
 and returns the function in correct python syntax
 """ 
 
-def generateEndpointFunction(name, url, method, params):
-    return f"""def {name}({', '.join(params)}):
+def generateEndpointFunction(name, url, params):
+    requiredParams = []
+    optionalParams = []
+    
+    for p in params:
+        if "name" in p:
+            if ("required" not in p or (p["required"] == "true")):
+                requiredParams.append(p["name"])
+            
+            else:
+                optionalParams.append(f"{p['name']}=None")
+        
+    requiredParams = list(map(kebabToCamel, requiredParams))
+    optionalParams = list(map(kebabToCamel, optionalParams))
+    requiredParams = list(map(dotToCamel, requiredParams))
+    optionalParams = list(map(dotToCamel, optionalParams))
 
-    r = requests.{method}(
-        f'{url}', params=params
-    )
+     
+    paramsString = ""
+        
+    for p in optionalParams:
+        try:
+            paramName = p.split("=")[0]
+            paramsString += f"""if {paramName} != None:
+            parameters["{paramName}"] = {paramName} 
+        
+        """
+        except KeyError:
+            pass
+    
+    functionString = f"""def {name}({', '.join(requiredParams + optionalParams)}):
 
-    items = r.json()
+        parameters = {{}}
+    
+        {paramsString}
 
-    return items
-"""
+        r = requests.get(
+            f'{url}', params=parameters
+        )
+
+        items = r.json()
+
+        return items
+    """
+    
+    with open("test.py", "w") as f:
+        f.write(functionString)
+        
+    return functionString 
