@@ -21,11 +21,13 @@ with open("hydrology-oas.json") as f:
         
         # --- collecting all distinct endpoints, ignoring the _view params ---
         if "?_view" not in endpoint:
-            endpoints[endpoint] = [endpoint]
+            endpoints[endpoint] = {}
+            endpoints[endpoint]["paths"] = [endpoint]
+            endpoints[endpoint]["parameters"] = endpointInfo["get"]["parameters"]
         else:
             # get base endpoint, which is the string before the '?'
             baseEndpoint = endpoint.split('?',1)[0]
-            endpoints[baseEndpoint].append(endpoint)
+            endpoints[baseEndpoint]["paths"].append(endpoint)
             
         # ---
         
