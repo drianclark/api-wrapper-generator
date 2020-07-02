@@ -1,3 +1,5 @@
+import re
+
 def kebabToCamel(s):
     iterchars = iter(s.split("-"))
     result = s.split("-")[0]
@@ -19,7 +21,9 @@ def dotToCamel(s):
         return splitString[0] + splitString[1][0].upper() + splitString[1][1:]
     
 def makeFunctionName(s):
-    words = s.strip(".").split()
+    onlyAlphabetic = re.sub(r'[^a-zA-Z ]', '', s)
+    words = onlyAlphabetic.strip(".").split()
+    
     capitalizedWords = [w.capitalize() for w in words]
     functionName = ''.join(capitalizedWords)
     

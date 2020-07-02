@@ -16,7 +16,6 @@ class EndpointFunctionsGenerator:
         self.endpoints = {}
                         
         for endpoint, endpointInfo in paths.items():
-                            
             # --- collecting all distinct endpoints, ignoring the _view params ---
             if "?_view" not in endpoint:
                 self.endpoints[endpoint] = {}
@@ -24,12 +23,17 @@ class EndpointFunctionsGenerator:
                 self.endpoints[endpoint]["parameters"] = endpointInfo["parameters"]
                 self.endpoints[endpoint]["parameters"] += endpointInfo["get"]["parameters"]
                 self.endpoints[endpoint]["name"] = makeFunctionName(endpointInfo["description"])
+                
             else:
                 # get base endpoint, which is the string before the '?'
                 baseEndpoint = endpoint.split('?',1)[0]
                 self.endpoints[baseEndpoint]["paths"].append(endpoint)
                 
     def generateEndpointFunctions(self):
+        def initialiseFile():
+            with open(self.outFile, 'w') as f:
+                f.write("import requests\n\n")
+        
         def generateEndpointFunction(name, url, params):
             requiredParams = []
             optionalParams = []
@@ -54,34 +58,39 @@ class EndpointFunctionsGenerator:
                 try:
                     paramName = p.split("=")[0]
                     paramsString += f"""if {paramName} != None:
-                    parameters["{paramName}"] = {paramName} 
-                    
-                """
+        parameters["{paramName}"] = {paramName} 
+    """
                 except KeyError:
                     pass
+            
+            paramField = ",\n\t".join(requiredParams + optionalParams)
+            functionString = f"""def {name}(
+    {paramField}):
+    
+    parameters = {{}}
                 
-            functionString = f"""def {name}({', '.join(requiredParams + optionalParams)}):
+    {paramsString}
+    r = requests.get(
+        f'{url}', params=parameters
+    )
 
-                parameters = {{}}
-                
-                {paramsString}
-
-                r = requests.get(
-                    f'{url}', params=parameters
-                )
-
-                items = r.json()
-
-                return items
-            """
-                    
+    items = r.json()
+    return items
+    
+"""
             return functionString 
     
-        for _, endpointInfo in self.endpoints.items():
-            f = generateEndpointFunction(endpointInfo["name"],
+        initialiseFile()
+        
+        for endpoint, endpointInfo in self.endpoints.items():
+            print(endpoint)
+            
+            functionString = generateEndpointFunction(endpointInfo["name"],
                                      self.serverURL + next(path for path in endpointInfo["paths"] if "?" not in path),
                                      endpointInfo["parameters"])
-            print(f)
+            
+            with open(self.outFile, 'a') as f:
+                f.write(functionString)
             
 e = EndpointFunctionsGenerator("hydrology-oas.json", "test.py")
 e.generateEndpointFunctions()
