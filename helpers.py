@@ -6,7 +6,7 @@ def kebabToCamel(s):
     next(iterchars)
     
     for word in iterchars:
-        result += word.capitalize()
+        result += word[0].upper() + word[1:]
     
     return result
 
@@ -14,11 +14,16 @@ def dotToCamel(s):
     if "." not in s:
         return s
     
-    splitString = (s.split(".", 1))
+    splitString = (s.split("."))
+    camelCaseArray = [word[0].upper() + word[1:] if index > 0 else word for index, word in enumerate(splitString)]
+    
     if splitString[0] in splitString[1]:
-        return splitString[1]
-    else:
-        return splitString[0] + splitString[1][0].upper() + splitString[1][1:]
+        del splitString[0]
+    
+    return ''.join(camelCaseArray)
+
+def makeParamName(s):
+    return dotToCamel(kebabToCamel(s))
     
 def makeFunctionName(s):
     onlyAlphabetic = re.sub(r'[^a-zA-Z ]', '', s)

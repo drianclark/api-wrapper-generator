@@ -1,18 +1,33 @@
 import json
-from helpers import dotToCamel, kebabToCamel, makeFunctionName
+import jsonref
+from inspect import cleandoc
+from prance import ResolvingParser
+from helpers import dotToCamel, kebabToCamel, makeFunctionName, makeParamName
 
 class EndpointFunctionsGenerator:
     # apiSpec is a json file
     def __init__(self, apiSpec, outFile):
         self.apiSpec = apiSpec
         self.outFile = outFile
+        self.API_URL = "https://environment.data.gov.uk"
         
         with open(self.apiSpec) as f:
-            specs = json.load(f)
+            specs = jsonref.load(f)
             paths = specs["paths"]
-            self.serverURL = specs["servers"][0]["url"]
+            self.serverURL = self.API_URL + specs["servers"][0]["url"]
+            
+        # specs = ResolvingParser(self.apiSpec).specification
+        # paths = specs["paths"]
+        # self.serverURL = self.API_URL + specs["servers"][0]["url"]
+        # print(paths)
 
-                            
+
+        # for endpoint, methodObject in paths.items():
+            # print(endpoint)
+            # for method, info in methodObject.items():
+                # print(method)
+                # print(info)
+               
         self.endpoints = {}
                         
         for endpoint, endpointInfo in paths.items():
@@ -20,7 +35,7 @@ class EndpointFunctionsGenerator:
             if "?_view" not in endpoint:
                 self.endpoints[endpoint] = {}
                 self.endpoints[endpoint]["paths"] = [endpoint]
-                self.endpoints[endpoint]["parameters"] = endpointInfo["parameters"]
+                self.endpoints[endpoint]["parameters"] = endpointInfo["parameters"]            
                 self.endpoints[endpoint]["parameters"] += endpointInfo["get"]["parameters"]
                 self.endpoints[endpoint]["name"] = makeFunctionName(endpointInfo["description"])
                 
@@ -40,38 +55,33 @@ class EndpointFunctionsGenerator:
                 
             for p in params:
                 if "name" in p:
-                    if (("required" in p) and p["required"] == "true"):
-                        requiredParams.append(p["name"])
+                    if (("required" in p) and (p["required"] == "true" or p["required"] == True)):
+                        requiredParams.append(((p["name"]), makeParamName(p["name"])))
                         
                     else:
-                        optionalParams.append(f"{p['name']}=None")
-                    
-            requiredParams = list(map(kebabToCamel, requiredParams))
-            optionalParams = list(map(kebabToCamel, optionalParams))
-            requiredParams = list(map(dotToCamel, requiredParams))
-            optionalParams = list(map(dotToCamel, optionalParams))
+                        optionalParams.append((p["name"], f"{makeParamName(p['name'])}=None"))
+            
+            print(requiredParams)
+            print(optionalParams)
 
-                
             paramsString = ""
                     
-            for p in optionalParams:
-                try:
-                    paramName = p.split("=")[0]
-                    paramsString += f"""if {paramName} != None:
-        parameters["{paramName}"] = {paramName} 
-    """
-                except KeyError:
-                    pass
-            
-            paramField = ",\n\t".join(requiredParams + optionalParams)
-            functionString = f"""def {name}(
-    {paramField}):
+            for original, camelised in optionalParams:
+                paramName = camelised.split("=")[0]
+                paramsString += f"""\
+    if {paramName} != None:
+        parameters["{original}"] = {paramName}
+"""
+            paramField = ",\n".join([camelised for _,camelised in requiredParams] + [camelised for _,camelised in optionalParams])
+            functionString = f"""
+def {name}(
+{paramField}):
     
     parameters = {{}}
                 
-    {paramsString}
+{paramsString}
     r = requests.get(
-        f'{url}', params=parameters
+        '{url}', params=parameters
     )
 
     items = r.json()
