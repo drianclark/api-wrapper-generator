@@ -23,7 +23,7 @@ def dotToCamel(s):
     return ''.join(camelCaseArray)
 
 def makeParamName(s):
-    return dotToCamel(kebabToCamel(s))
+    return dotToCamel(kebabToCamel(s)).strip('_')
     
 def makeFunctionName(s):
     onlyAlphabetic = re.sub(r'[^a-zA-Z ]', '', s)

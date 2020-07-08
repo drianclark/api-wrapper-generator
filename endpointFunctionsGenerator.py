@@ -1,6 +1,7 @@
 import json
 import jsonref
-from inspect import cleandoc
+from pprint import pprint
+from jinja2 import Template, Environment, FileSystemLoader
 from prance import ResolvingParser
 from helpers import dotToCamel, kebabToCamel, makeFunctionName, makeParamName
 
@@ -35,72 +36,101 @@ class EndpointFunctionsGenerator:
             if "?_view" not in endpoint:
                 self.endpoints[endpoint] = {}
                 self.endpoints[endpoint]["paths"] = [endpoint]
-                self.endpoints[endpoint]["parameters"] = endpointInfo["parameters"]            
-                self.endpoints[endpoint]["parameters"] += endpointInfo["get"]["parameters"]
                 self.endpoints[endpoint]["name"] = makeFunctionName(endpointInfo["description"])
                 
+                parameters = endpointInfo["parameters"]
+                parameters += endpointInfo["get"]["parameters"]
+                    
+                self.endpoints[endpoint]["requiredParameters"] = []
+                self.endpoints[endpoint]["optionalParameters"] = []
+                required = self.endpoints[endpoint]["requiredParameters"]
+                optional = self.endpoints[endpoint]["optionalParameters"]
+                                
+                # collecting required and optional parameters as tuples
+                #    (api parameter name, camelised parameter name)
+                
+                for p in parameters:
+                    if "name" in p:
+                        paramName = p["name"]
+                        
+                        if (("required" in paramName) and (p["required"] == "true" or p["required"] == True)):
+                            # required.append({"api":p["name"], "camel":makeParamName(p["name"])})
+                            required.append((paramName,makeParamName(paramName)))
+                                
+                        else:
+                #             optional.append({"api":p["name"], "camel":makeParamName(p["name"])})
+                            optional.append((paramName, makeParamName(paramName)))  
             else:
                 # get base endpoint, which is the string before the '?'
                 baseEndpoint = endpoint.split('?',1)[0]
                 self.endpoints[baseEndpoint]["paths"].append(endpoint)
                 
+                if ("view","view") not in self.endpoints[baseEndpoint]["optionalParameters"]:
+                    # self.endpoints[baseEndpoint]["optionalParameters"].append({"camel":"view", "api":"view"})
+                    self.endpoints[baseEndpoint]["optionalParameters"].append(("view","view"))
+
+                
     def generateEndpointFunctions(self):
-        def initialiseFile():
-            with open(self.outFile, 'w') as f:
-                f.write("import requests\n\n")
-        
-        def generateEndpointFunction(name, url, params):
-            requiredParams = []
-            optionalParams = []
-                
-            for p in params:
-                if "name" in p:
-                    if (("required" in p) and (p["required"] == "true" or p["required"] == True)):
-                        requiredParams.append(((p["name"]), makeParamName(p["name"])))
-                        
-                    else:
-                        optionalParams.append((p["name"], f"{makeParamName(p['name'])}=None"))
+        def generateEndpointFunction(name, requiredParams, optionalParams, url):
+            env = Environment(loader=FileSystemLoader('templates'))
+            template = env.get_template('endpointFunctionTemplate.txt')
             
-            print(requiredParams)
-            print(optionalParams)
-
-            paramsString = ""
-                    
-            for original, camelised in optionalParams:
-                paramName = camelised.split("=")[0]
-                paramsString += f"""\
-    if {paramName} != None:
-        parameters["{original}"] = {paramName}
-"""
-            paramField = ",\n".join([camelised for _,camelised in requiredParams] + [camelised for _,camelised in optionalParams])
-            functionString = f"""
-def {name}(
-{paramField}):
-    
-    parameters = {{}}
+            requiredParamsField = [p[1] for p in requiredParams]
+            optionalParamsField = [p[1] + "=None" for p in optionalParams]
+            paramsField = ',\n'.join(requiredParamsField + optionalParamsField)
+            
+            render = template.render(name=name,
+                                     paramsField=paramsField, 
+                                     optionalParams=optionalParams, 
+                                     url=url)
+            
+            return render
                 
-{paramsString}
-    r = requests.get(
-        '{url}', params=parameters
-    )
-
-    items = r.json()
-    return items
-    
-"""
-            return functionString 
-    
-        initialiseFile()
+            
+        print(self.endpoints["/data/readings"]["name"])
+        print(self.endpoints["/data/readings"]["requiredParameters"])
+        print(self.endpoints["/data/readings"]["optionalParameters"])
+        
+        generateEndpointFunction(self.endpoints["/data/readings"]["name"],
+                                 self.endpoints["/data/readings"]["requiredParameters"],
+                                 self.endpoints["/data/readings"]["optionalParameters"],
+                                 "https://environment.data.gov.uk/hydrology/data/readings")
+        
+        functionStrings = []
         
         for endpoint, endpointInfo in self.endpoints.items():
-            print(endpoint)
+            functionStrings.append(generateEndpointFunction(endpointInfo["name"],
+                                                            endpointInfo["requiredParameters"],
+                                                            endpointInfo["optionalParameters"],
+                                                            self.serverURL + endpoint))
+        
+        
+        env = Environment(loader=FileSystemLoader('templates'))
+        template = env.get_template('endpointFunctionTemplates.txt')
+        
+        endpointFunctions = template.render(fu)
+
+
+        generateEndpointFunction(self.endpoints[])
+
             
-            functionString = generateEndpointFunction(endpointInfo["name"],
-                                     self.serverURL + next(path for path in endpointInfo["paths"] if "?" not in path),
-                                     endpointInfo["parameters"])
+    
+        # initialiseFile()
+        
+        # for endpoint, endpointInfo in self.endpoints.items():
+            # print(endpoint)
             
-            with open(self.outFile, 'a') as f:
-                f.write(functionString)
+            # functionString = generateEndpointFunction(endpointInfo["name"],
+                                    #  self.serverURL + next(path for path in endpointInfo["paths"] if "?" not in path),
+                                    #  endpointInfo["parameters"])
             
-e = EndpointFunctionsGenerator("hydrology-oas.json", "test.py")
+            # with open(self.outFile, 'a') as f:
+            #     f.write(functionString)
+        
+    
+        # with open(self.outFile, 'a') as f:
+        #     f.write(render)
+        # # print(render)
+            
+e = EndpointFunctionsGenerator("hydrology-oas.json", "jinjaTest.py")
 e.generateEndpointFunctions()
