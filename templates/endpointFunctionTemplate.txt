@@ -8,12 +8,12 @@ def {{ name }}(
         params[{{ "'" + p[0] + "'" }}] = {{p[1]}}
 {% endfor %}
     try:
-        r = requests.get({{ url }}, params=params)
+        r = requests.get({{ "'" + url + "'" }}, params=params)
         r.raise_for_status()
 
     except:
         raise ValueError("Request failed")
 
-    data = r.json()["items"]
+    data = r.json()
 
     return data

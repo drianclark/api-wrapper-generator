@@ -1,4 +1,4 @@
 import requests
-
-{% for function in functions %}
-    {{ function }}
+{% for function in functionStrings %}
+{{ function }}
+{% endfor %}

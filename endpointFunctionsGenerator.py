@@ -12,6 +12,7 @@ class EndpointFunctionsGenerator:
         self.outFile = outFile
         self.API_URL = "https://environment.data.gov.uk"
         
+        
         with open(self.apiSpec) as f:
             specs = jsonref.load(f)
             paths = specs["paths"]
@@ -41,8 +42,8 @@ class EndpointFunctionsGenerator:
                 parameters = endpointInfo["parameters"]
                 parameters += endpointInfo["get"]["parameters"]
                     
-                self.endpoints[endpoint]["requiredParameters"] = []
-                self.endpoints[endpoint]["optionalParameters"] = []
+                self.endpoints[endpoint]["requiredParameters"] = set()
+                self.endpoints[endpoint]["optionalParameters"] = set()
                 required = self.endpoints[endpoint]["requiredParameters"]
                 optional = self.endpoints[endpoint]["optionalParameters"]
                                 
@@ -55,20 +56,16 @@ class EndpointFunctionsGenerator:
                         
                         if (("required" in paramName) and (p["required"] == "true" or p["required"] == True)):
                             # required.append({"api":p["name"], "camel":makeParamName(p["name"])})
-                            required.append((paramName,makeParamName(paramName)))
+                            required.add((paramName,makeParamName(paramName)))
                                 
                         else:
                 #             optional.append({"api":p["name"], "camel":makeParamName(p["name"])})
-                            optional.append((paramName, makeParamName(paramName)))  
+                            optional.add((paramName, makeParamName(paramName)))  
             else:
                 # get base endpoint, which is the string before the '?'
                 baseEndpoint = endpoint.split('?',1)[0]
                 self.endpoints[baseEndpoint]["paths"].append(endpoint)
-                
-                if ("view","view") not in self.endpoints[baseEndpoint]["optionalParameters"]:
-                    # self.endpoints[baseEndpoint]["optionalParameters"].append({"camel":"view", "api":"view"})
-                    self.endpoints[baseEndpoint]["optionalParameters"].append(("view","view"))
-
+                self.endpoints[baseEndpoint]["optionalParameters"].add(("view","view"))
                 
     def generateEndpointFunctions(self):
         def generateEndpointFunction(name, requiredParams, optionalParams, url):
@@ -87,9 +84,9 @@ class EndpointFunctionsGenerator:
             return render
                 
             
-        print(self.endpoints["/data/readings"]["name"])
-        print(self.endpoints["/data/readings"]["requiredParameters"])
-        print(self.endpoints["/data/readings"]["optionalParameters"])
+        # print(self.endpoints["/data/readings"]["name"])
+        # print(self.endpoints["/data/readings"]["requiredParameters"])
+        # print(self.endpoints["/data/readings"]["optionalParameters"])
         
         generateEndpointFunction(self.endpoints["/data/readings"]["name"],
                                  self.endpoints["/data/readings"]["requiredParameters"],
@@ -106,31 +103,12 @@ class EndpointFunctionsGenerator:
         
         
         env = Environment(loader=FileSystemLoader('templates'))
-        template = env.get_template('endpointFunctionTemplates.txt')
+        template = env.get_template('endpointFunctionsTemplate.txt')
         
-        endpointFunctions = template.render(fu)
-
-
-        generateEndpointFunction(self.endpoints[])
-
-            
-    
-        # initialiseFile()
+        endpointFunctions = template.render(functionStrings=functionStrings)         
         
-        # for endpoint, endpointInfo in self.endpoints.items():
-            # print(endpoint)
-            
-            # functionString = generateEndpointFunction(endpointInfo["name"],
-                                    #  self.serverURL + next(path for path in endpointInfo["paths"] if "?" not in path),
-                                    #  endpointInfo["parameters"])
-            
-            # with open(self.outFile, 'a') as f:
-            #     f.write(functionString)
-        
-    
-        # with open(self.outFile, 'a') as f:
-        #     f.write(render)
-        # # print(render)
+        with open(self.outFile, 'w') as f:
+            f.write(endpointFunctions)   
             
 e = EndpointFunctionsGenerator("hydrology-oas.json", "jinjaTest.py")
 e.generateEndpointFunctions()

@@ -1,0 +1,20 @@
+class {{ className }}:
+
+    def __init__(self, dict):
+        for k, v in dict.items():
+            setattr(self, "_" + k, v)
+
+        try: 
+            self._id = dict["@id"]
+        except:
+            pass
+
+    {% for name, info in properties.items() %}
+    def {{ name }}(self):
+        try:
+            value = self._{{ name  }}
+        except AttributeError:
+            value = None
+
+        return value
+    {% endfor %}
