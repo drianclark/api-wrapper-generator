@@ -10,6 +10,7 @@ class TimeSeries:
             pass
 
     
+        
     def label(self):
         try:
             value = self._label
@@ -17,7 +18,9 @@ class TimeSeries:
             value = None
 
         return value
+        
     
+        
     def parameter(self):
         try:
             value = self._parameter
@@ -25,7 +28,9 @@ class TimeSeries:
             value = None
 
         return value
+        
     
+        
     def parameterName(self):
         try:
             value = self._parameterName
@@ -33,7 +38,9 @@ class TimeSeries:
             value = None
 
         return value
+        
     
+        
     def qualifier(self):
         try:
             value = self._qualifier
@@ -41,7 +48,9 @@ class TimeSeries:
             value = None
 
         return value
+        
     
+        
     def period(self):
         try:
             value = self._period
@@ -49,7 +58,9 @@ class TimeSeries:
             value = None
 
         return value
+        
     
+        
     def valueStatistic(self):
         try:
             value = self._valueStatistic
@@ -57,7 +68,9 @@ class TimeSeries:
             value = None
 
         return value
+        
     
+        
     def datumType(self):
         try:
             value = self._datumType
@@ -65,7 +78,9 @@ class TimeSeries:
             value = None
 
         return value
+        
     
+        
     def observationType(self):
         try:
             value = self._observationType
@@ -73,7 +88,9 @@ class TimeSeries:
             value = None
 
         return value
+        
     
+        
     def observedProperty(self):
         try:
             value = self._observedProperty
@@ -81,7 +98,9 @@ class TimeSeries:
             value = None
 
         return value
+        
     
+        
     def station(self):
         try:
             value = self._station
@@ -89,7 +108,9 @@ class TimeSeries:
             value = None
 
         return value
+        
     
+        
     def unit(self):
         try:
             value = self._unit
@@ -97,7 +118,9 @@ class TimeSeries:
             value = None
 
         return value
+        
     
+        
     def unitName(self):
         try:
             value = self._unitName
@@ -105,7 +128,9 @@ class TimeSeries:
             value = None
 
         return value
+        
     
+        
     def notation(self):
         try:
             value = self._notation
@@ -113,4 +138,5 @@ class TimeSeries:
             value = None
 
         return value
+        
     

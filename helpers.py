@@ -33,3 +33,9 @@ def makeFunctionName(s):
     functionName = ''.join(capitalizedWords)
     
     return functionName
+
+def makeClassName(s):
+    camel = makeParamName(s)
+    pascal = camel[0].upper() + camel[1:]
+    
+    return pascal

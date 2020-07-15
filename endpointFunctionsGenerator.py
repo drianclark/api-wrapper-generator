@@ -9,7 +9,7 @@ class EndpointFunctionsGenerator:
     # apiSpec is a json file
     def __init__(self, apiSpec, outFile):
         self.apiSpec = apiSpec
-        self.outFile = outFile
+        self.outFile = 'renders/' + outFile
         self.API_URL = "https://environment.data.gov.uk"
         
         

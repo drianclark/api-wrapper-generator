@@ -1,4 +1,4 @@
-class Readings:
+class Measures:
 
     def __init__(self, dict):
         for k, v in dict.items():
@@ -10,83 +10,83 @@ class Readings:
             pass
 
     
-    def measure(self):
+        
+    def label(self):
         try:
-            value = self._measure
+            value = self._label
         except AttributeError:
             value = None
 
         return value
+        
     
-    def dateTime(self):
+        
+    def observedProperty(self):
         try:
-            value = self._dateTime
+            value = self._observedProperty
         except AttributeError:
             value = None
 
         return value
+        
     
-    def date(self):
+        
+    def qualifier(self):
         try:
-            value = self._date
+            value = self._qualifier
         except AttributeError:
             value = None
 
         return value
+        
     
-    def value(self):
+        
+    def unitName(self):
         try:
-            value = self._value
+            value = self._unitName
         except AttributeError:
             value = None
 
         return value
+        
     
-    def completeness(self):
+        
+    def notation(self):
         try:
-            value = self._completeness
+            value = self._notation
         except AttributeError:
             value = None
 
         return value
+        
     
-    def quality(self):
+        
+    def period(self):
         try:
-            value = self._quality
+            value = self._period
         except AttributeError:
             value = None
 
         return value
+        
     
-    def qcode(self):
+        
+    def valueStatistic(self):
         try:
-            value = self._qcode
+            value = self._valueStatistic
         except AttributeError:
             value = None
 
         return value
+        
     
-    def valid(self):
+        
+    def observationType(self):
         try:
-            value = self._valid
+            value = self._observationType
         except AttributeError:
             value = None
 
         return value
-    
-    def invalid(self):
-        try:
-            value = self._invalid
-        except AttributeError:
-            value = None
-
-        return value
-    
-    def missing(self):
-        try:
-            value = self._missing
-        except AttributeError:
-            value = None
-
-        return value
+        
     

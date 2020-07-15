@@ -1,19 +1,19 @@
 {
-    "classes" : [
-        { "timeseriesEndpoint-default" : "TimeSeries" },
-        { "dataEndpoint-full" : "Readings" },
-        { "stationsEndpoint-default" : "Station" }
-    ],
+    "classes" : {
+        "timeseriesEndpoint-default" : "TimeSeries",
+        "dataEndpoint-full" : "Reading",
+        "stationsEndpoint-default" : "Station"
+    },
 
-    "mappings" : [
-        { "/data/readings" : "[Readings]" },
-        { "/id/measures" : "[TimeSeries]" },
-        { "/id/measures/{id}" : "TimeSeries" },
-        { "/id/measures/{measure}/readings" : "Readings" }, 
-        { "/id/stations" : "[Station]" },
-        { "/id/stations/{id}" : "Station" },
-        { "/id/stations/{station}/measures" : "[TimeSeries]" }
-    ]
+    "mappings" : {
+        "/data/readings" : "[Readings]",
+        "/id/measures" : "[TimeSeries]",
+        "/id/measures/{id}" : "TimeSeries",
+        "/id/measures/{measure}/readings" : "Reading", 
+        "/id/stations" : "[Station]",
+        "/id/stations/{id}" : "Station",
+        "/id/stations/{station}/measures" : "[TimeSeries]"
+    }
 }
         
         

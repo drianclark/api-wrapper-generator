@@ -1,4 +1,4 @@
-class {{ className }}:
+class ObservedProperty:
 
     def __init__(self, dict):
         for k, v in dict.items():
@@ -9,14 +9,24 @@ class {{ className }}:
         except:
             pass
 
-    {% for propertyObject in properties %}
-        {% for name, info in propertyObject.items() %}
-    def {{ name }}(self):
+    
+        
+    def label(self):
         try:
-            value = self._{{ name  }}
+            value = self._label
         except AttributeError:
             value = None
 
         return value
-        {% endfor %}
-    {% endfor %}
+        
+    
+        
+    def label(self):
+        try:
+            value = self._label
+        except AttributeError:
+            value = None
+
+        return value
+        
+    

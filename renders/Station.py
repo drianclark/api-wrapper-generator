@@ -10,6 +10,7 @@ class Station:
             pass
 
     
+        
     def type(self):
         try:
             value = self._type
@@ -17,7 +18,9 @@ class Station:
             value = None
 
         return value
+        
     
+        
     def label(self):
         try:
             value = self._label
@@ -25,7 +28,9 @@ class Station:
             value = None
 
         return value
+        
     
+        
     def notation(self):
         try:
             value = self._notation
@@ -33,7 +38,9 @@ class Station:
             value = None
 
         return value
+        
     
+        
     def easting(self):
         try:
             value = self._easting
@@ -41,7 +48,9 @@ class Station:
             value = None
 
         return value
+        
     
+        
     def northing(self):
         try:
             value = self._northing
@@ -49,7 +58,9 @@ class Station:
             value = None
 
         return value
+        
     
+        
     def lat(self):
         try:
             value = self._lat
@@ -57,7 +68,9 @@ class Station:
             value = None
 
         return value
+        
     
+        
     def long(self):
         try:
             value = self._long
@@ -65,7 +78,9 @@ class Station:
             value = None
 
         return value
+        
     
+        
     def catchmentName(self):
         try:
             value = self._catchmentName
@@ -73,7 +88,9 @@ class Station:
             value = None
 
         return value
+        
     
+        
     def riverName(self):
         try:
             value = self._riverName
@@ -81,7 +98,9 @@ class Station:
             value = None
 
         return value
+        
     
+        
     def town(self):
         try:
             value = self._town
@@ -89,7 +108,9 @@ class Station:
             value = None
 
         return value
+        
     
+        
     def stationReference(self):
         try:
             value = self._stationReference
@@ -97,7 +118,9 @@ class Station:
             value = None
 
         return value
+        
     
+        
     def wiskiID(self):
         try:
             value = self._wiskiID
@@ -105,7 +128,9 @@ class Station:
             value = None
 
         return value
+        
     
+        
     def RLOIid(self):
         try:
             value = self._RLOIid
@@ -113,7 +138,9 @@ class Station:
             value = None
 
         return value
+        
     
+        
     def dateOpened(self):
         try:
             value = self._dateOpened
@@ -121,7 +148,9 @@ class Station:
             value = None
 
         return value
+        
     
+        
     def nrfaStationID(self):
         try:
             value = self._nrfaStationID
@@ -129,7 +158,9 @@ class Station:
             value = None
 
         return value
+        
     
+        
     def nrfaStationURL(self):
         try:
             value = self._nrfaStationURL
@@ -137,7 +168,9 @@ class Station:
             value = None
 
         return value
+        
     
+        
     def datum(self):
         try:
             value = self._datum
@@ -145,7 +178,9 @@ class Station:
             value = None
 
         return value
+        
     
+        
     def boreholeDepth(self):
         try:
             value = self._boreholeDepth
@@ -153,7 +188,9 @@ class Station:
             value = None
 
         return value
+        
     
+        
     def aquifer(self):
         try:
             value = self._aquifer
@@ -161,7 +198,9 @@ class Station:
             value = None
 
         return value
+        
     
+        
     def status(self):
         try:
             value = self._status
@@ -169,7 +208,9 @@ class Station:
             value = None
 
         return value
+        
     
+        
     def measures(self):
         try:
             value = self._measures
@@ -177,7 +218,9 @@ class Station:
             value = None
 
         return value
+        
     
+        
     def sampleOf(self):
         try:
             value = self._sampleOf
@@ -185,4 +228,5 @@ class Station:
             value = None
 
         return value
+        
     
