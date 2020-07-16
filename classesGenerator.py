@@ -32,12 +32,21 @@ class ClassesGenerator:
         for schema, props in classProps.items():
             try:
                 className = self.classes[schema]
-                render = template.render(className=className, properties=props)
+                
             except KeyError:
                 className = makeClassName(schema)
                 print(f'{schema} not in configuration file. Will name class {className}.')
-                render = template.render(className=className, properties=props)
                 
+            objectAttributes = set()
+            for prop in props:
+                for propName, propInfo in prop.items():
+                    if propName in list(classProps.keys()):
+                        objectAttributes.add(propName)
+            
+            # print(objectAttributes)
+                    
+            render = template.render(className=className, properties=props, objectAttributes=objectAttributes)
+
             with open(f'renders/{className}.py', 'w') as f:
                 f.write(render)
 

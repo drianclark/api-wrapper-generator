@@ -4,12 +4,21 @@ class Station:
         for k, v in dict.items():
             setattr(self, "_" + k, v)
 
+        keys = list(dict.keys())
+
         try: 
             self._id = dict["@id"]
         except:
             pass
-
-    
+        
+        if "status" in keys:
+            self._status = Status(dict["status"])
+        
+        if "measures" in keys:
+            self._measures = Measures(dict["measures"])
+        
+        if "sampleOf" in keys:
+            self._sampleOf = SampleOf(dict["sampleOf"])
         
     def type(self):
         try:
@@ -19,7 +28,6 @@ class Station:
 
         return value
         
-    
         
     def label(self):
         try:
@@ -29,7 +37,6 @@ class Station:
 
         return value
         
-    
         
     def notation(self):
         try:
@@ -39,7 +46,6 @@ class Station:
 
         return value
         
-    
         
     def easting(self):
         try:
@@ -49,7 +55,6 @@ class Station:
 
         return value
         
-    
         
     def northing(self):
         try:
@@ -59,7 +64,6 @@ class Station:
 
         return value
         
-    
         
     def lat(self):
         try:
@@ -69,7 +73,6 @@ class Station:
 
         return value
         
-    
         
     def long(self):
         try:
@@ -79,7 +82,6 @@ class Station:
 
         return value
         
-    
         
     def catchmentName(self):
         try:
@@ -89,7 +91,6 @@ class Station:
 
         return value
         
-    
         
     def riverName(self):
         try:
@@ -99,7 +100,6 @@ class Station:
 
         return value
         
-    
         
     def town(self):
         try:
@@ -109,7 +109,6 @@ class Station:
 
         return value
         
-    
         
     def stationReference(self):
         try:
@@ -119,7 +118,6 @@ class Station:
 
         return value
         
-    
         
     def wiskiID(self):
         try:
@@ -129,7 +127,6 @@ class Station:
 
         return value
         
-    
         
     def RLOIid(self):
         try:
@@ -139,7 +136,6 @@ class Station:
 
         return value
         
-    
         
     def dateOpened(self):
         try:
@@ -149,7 +145,6 @@ class Station:
 
         return value
         
-    
         
     def nrfaStationID(self):
         try:
@@ -159,7 +154,6 @@ class Station:
 
         return value
         
-    
         
     def nrfaStationURL(self):
         try:
@@ -169,7 +163,6 @@ class Station:
 
         return value
         
-    
         
     def datum(self):
         try:
@@ -179,7 +172,6 @@ class Station:
 
         return value
         
-    
         
     def boreholeDepth(self):
         try:
@@ -189,7 +181,6 @@ class Station:
 
         return value
         
-    
         
     def aquifer(self):
         try:
@@ -199,7 +190,6 @@ class Station:
 
         return value
         
-    
         
     def status(self):
         try:
@@ -209,7 +199,6 @@ class Station:
 
         return value
         
-    
         
     def measures(self):
         try:
@@ -219,7 +208,6 @@ class Station:
 
         return value
         
-    
         
     def sampleOf(self):
         try:
@@ -229,4 +217,4 @@ class Station:
 
         return value
         
-    
+        

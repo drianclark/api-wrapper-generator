@@ -4,12 +4,21 @@ class Measures:
         for k, v in dict.items():
             setattr(self, "_" + k, v)
 
+        keys = list(dict.keys())
+
         try: 
             self._id = dict["@id"]
         except:
             pass
-
-    
+        
+        if "valueStatistic" in keys:
+            self._valueStatistic = ValueStatistic(dict["valueStatistic"])
+        
+        if "observationType" in keys:
+            self._observationType = ObservationType(dict["observationType"])
+        
+        if "observedProperty" in keys:
+            self._observedProperty = ObservedProperty(dict["observedProperty"])
         
     def label(self):
         try:
@@ -19,7 +28,6 @@ class Measures:
 
         return value
         
-    
         
     def observedProperty(self):
         try:
@@ -29,7 +37,6 @@ class Measures:
 
         return value
         
-    
         
     def qualifier(self):
         try:
@@ -39,7 +46,6 @@ class Measures:
 
         return value
         
-    
         
     def unitName(self):
         try:
@@ -49,7 +55,6 @@ class Measures:
 
         return value
         
-    
         
     def notation(self):
         try:
@@ -59,7 +64,6 @@ class Measures:
 
         return value
         
-    
         
     def period(self):
         try:
@@ -69,7 +73,6 @@ class Measures:
 
         return value
         
-    
         
     def valueStatistic(self):
         try:
@@ -79,7 +82,6 @@ class Measures:
 
         return value
         
-    
         
     def observationType(self):
         try:
@@ -89,4 +91,4 @@ class Measures:
 
         return value
         
-    
+        

@@ -4,12 +4,12 @@ class ValueStatistic:
         for k, v in dict.items():
             setattr(self, "_" + k, v)
 
+        keys = list(dict.keys())
+
         try: 
             self._id = dict["@id"]
         except:
             pass
-
-    
         
     def label(self):
         try:
@@ -19,7 +19,6 @@ class ValueStatistic:
 
         return value
         
-    
         
     def label(self):
         try:
@@ -29,4 +28,4 @@ class ValueStatistic:
 
         return value
         
-    
+        

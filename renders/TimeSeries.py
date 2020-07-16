@@ -4,12 +4,24 @@ class TimeSeries:
         for k, v in dict.items():
             setattr(self, "_" + k, v)
 
+        keys = list(dict.keys())
+
         try: 
             self._id = dict["@id"]
         except:
             pass
-
-    
+        
+        if "valueStatistic" in keys:
+            self._valueStatistic = ValueStatistic(dict["valueStatistic"])
+        
+        if "observationType" in keys:
+            self._observationType = ObservationType(dict["observationType"])
+        
+        if "observedProperty" in keys:
+            self._observedProperty = ObservedProperty(dict["observedProperty"])
+        
+        if "station" in keys:
+            self._station = Station(dict["station"])
         
     def label(self):
         try:
@@ -19,7 +31,6 @@ class TimeSeries:
 
         return value
         
-    
         
     def parameter(self):
         try:
@@ -29,7 +40,6 @@ class TimeSeries:
 
         return value
         
-    
         
     def parameterName(self):
         try:
@@ -39,7 +49,6 @@ class TimeSeries:
 
         return value
         
-    
         
     def qualifier(self):
         try:
@@ -49,7 +58,6 @@ class TimeSeries:
 
         return value
         
-    
         
     def period(self):
         try:
@@ -59,7 +67,6 @@ class TimeSeries:
 
         return value
         
-    
         
     def valueStatistic(self):
         try:
@@ -69,7 +76,6 @@ class TimeSeries:
 
         return value
         
-    
         
     def datumType(self):
         try:
@@ -79,7 +85,6 @@ class TimeSeries:
 
         return value
         
-    
         
     def observationType(self):
         try:
@@ -89,7 +94,6 @@ class TimeSeries:
 
         return value
         
-    
         
     def observedProperty(self):
         try:
@@ -99,7 +103,6 @@ class TimeSeries:
 
         return value
         
-    
         
     def station(self):
         try:
@@ -109,7 +112,6 @@ class TimeSeries:
 
         return value
         
-    
         
     def unit(self):
         try:
@@ -119,7 +121,6 @@ class TimeSeries:
 
         return value
         
-    
         
     def unitName(self):
         try:
@@ -129,7 +130,6 @@ class TimeSeries:
 
         return value
         
-    
         
     def notation(self):
         try:
@@ -139,4 +139,4 @@ class TimeSeries:
 
         return value
         
-    
+        

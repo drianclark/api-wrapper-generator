@@ -1,16 +1,34 @@
+{% macro pascalCase(s) -%}
+    {{ s[0]|upper}}{{s[1:] -}}
+{% endmacro -%}
 class {{ className }}:
 
     def __init__(self, dict):
         for k, v in dict.items():
             setattr(self, "_" + k, v)
 
+        keys = list(dict.keys())
+
         try: 
             self._id = dict["@id"]
         except:
             pass
+        {% for objectAttribute in objectAttributes %}
+        if "{{ objectAttribute }}" in keys:
+            self._{{ objectAttribute }} = {{pascalCase(objectAttribute)}}(dict["{{objectAttribute}}"])
+        {% endfor -%}
+        
+    {% for propertyObject in properties -%}
+        {% for name, info in propertyObject.items() -%}
+        {% if "$ref" in info %}
+    def {{ name }}(self):
+        try:
+            value = self._{{ name  }}["@id"]
+        except AttributeError:
+            value = None
 
-    {% for propertyObject in properties %}
-        {% for name, info in propertyObject.items() %}
+        return value
+            {% else %}
     def {{ name }}(self):
         try:
             value = self._{{ name  }}
@@ -18,5 +36,6 @@ class {{ className }}:
             value = None
 
         return value
-        {% endfor %}
-    {% endfor %}
+        {% endif %}
+        {% endfor -%}
+    {% endfor -%}

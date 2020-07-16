@@ -4,22 +4,21 @@ class Reading:
         for k, v in dict.items():
             setattr(self, "_" + k, v)
 
+        keys = list(dict.keys())
+
         try: 
             self._id = dict["@id"]
         except:
             pass
-
-    
         
     def measure(self):
         try:
-            value = self._measure
+            value = self._measure["@id"]
         except AttributeError:
             value = None
 
         return value
-        
-    
+            
         
     def dateTime(self):
         try:
@@ -29,7 +28,6 @@ class Reading:
 
         return value
         
-    
         
     def date(self):
         try:
@@ -39,7 +37,6 @@ class Reading:
 
         return value
         
-    
         
     def value(self):
         try:
@@ -49,7 +46,6 @@ class Reading:
 
         return value
         
-    
         
     def completeness(self):
         try:
@@ -59,7 +55,6 @@ class Reading:
 
         return value
         
-    
         
     def quality(self):
         try:
@@ -69,7 +64,6 @@ class Reading:
 
         return value
         
-    
         
     def qcode(self):
         try:
@@ -79,7 +73,6 @@ class Reading:
 
         return value
         
-    
         
     def valid(self):
         try:
@@ -89,7 +82,6 @@ class Reading:
 
         return value
         
-    
         
     def invalid(self):
         try:
@@ -99,7 +91,6 @@ class Reading:
 
         return value
         
-    
         
     def missing(self):
         try:
@@ -109,4 +100,4 @@ class Reading:
 
         return value
         
-    
+        
