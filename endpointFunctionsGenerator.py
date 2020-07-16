@@ -7,9 +7,10 @@ from helpers import dotToCamel, kebabToCamel, makeFunctionName, makeParamName
 
 class EndpointFunctionsGenerator:
     # apiSpec is a json file
-    def __init__(self, apiSpec, outFile):
+    def __init__(self, apiSpec, outFile, directory='/renders/'):
         self.apiSpec = apiSpec
         self.outFile = 'renders/' + outFile
+        self.directory = directory
         self.API_URL = "https://environment.data.gov.uk"
         
         
@@ -107,8 +108,6 @@ class EndpointFunctionsGenerator:
         
         endpointFunctions = template.render(functionStrings=functionStrings)         
         
-        with open(self.outFile, 'w') as f:
+        with open(f'{self.directory}/{self.outFile}', 'w') as f:
             f.write(endpointFunctions)   
-            
-e = EndpointFunctionsGenerator("hydrology-oas.json", "jinjaTest.py")
-e.generateEndpointFunctions()
+        

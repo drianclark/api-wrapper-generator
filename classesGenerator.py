@@ -5,8 +5,9 @@ from jinja2 import Template, Environment, FileSystemLoader
 from helpers import makeClassName
 
 class ClassesGenerator:
-    def __init__(self, config, spec):
+    def __init__(self, config, spec, directory='/renders'):
         self.spec = spec
+        self.directory = directory
         
         with open(config) as f:
             self.classes = json.load(f)["classes"]
@@ -47,7 +48,7 @@ class ClassesGenerator:
                     
             render = template.render(className=className, properties=props, objectAttributes=objectAttributes)
 
-            with open(f'renders/{className}.py', 'w') as f:
+            with open(f'{self.directory}/{className}.py', 'w') as f:
                 f.write(render)
 
             # for prop, propData in properties.items():
@@ -82,10 +83,5 @@ def getObjectsRecursion(key,dictionary):
                             # print(v2)
                             # print()
                             yield (k2,v2)
-
-                        
                 break
                 
-                
-with open("hydrology-oas.json") as f:
-    schemas = json.load(f)["components"]["schemas"]
