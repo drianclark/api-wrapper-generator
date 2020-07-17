@@ -1,3 +1,4 @@
+
 class ObservationType:
 
     def __init__(self, dict):

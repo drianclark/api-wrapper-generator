@@ -1,6 +1,9 @@
 {% macro pascalCase(s) -%}
     {{ s[0]|upper}}{{s[1:] -}}
 {% endmacro -%}
+{% for objectAttribute in objectAttributes -%}
+from {{ packageName + '.' + pascalCase(objectAttribute) }} import {{ pascalCase(objectAttribute) }}
+{% endfor %}
 class {{ className }}:
 
     def __init__(self, dict):

@@ -1,5 +1,6 @@
 import json
 import jsonref
+import os
 from pprint import pprint
 from jinja2 import Template, Environment, FileSystemLoader
 from prance import ResolvingParser
@@ -7,34 +8,21 @@ from helpers import dotToCamel, kebabToCamel, makeFunctionName, makeParamName
 
 class EndpointFunctionsGenerator:
     # apiSpec is a json file
-    def __init__(self, apiSpec, outFile, directory='/renders/'):
+    def __init__(self, apiSpec, outFile, directory='renders'):
         self.apiSpec = apiSpec
-        self.outFile = 'renders/' + outFile
+        self.outFile = outFile
         self.directory = directory
         self.API_URL = "https://environment.data.gov.uk"
-        
         
         with open(self.apiSpec) as f:
             specs = jsonref.load(f)
             paths = specs["paths"]
             self.serverURL = self.API_URL + specs["servers"][0]["url"]
             
-        # specs = ResolvingParser(self.apiSpec).specification
-        # paths = specs["paths"]
-        # self.serverURL = self.API_URL + specs["servers"][0]["url"]
-        # print(paths)
-
-
-        # for endpoint, methodObject in paths.items():
-            # print(endpoint)
-            # for method, info in methodObject.items():
-                # print(method)
-                # print(info)
-               
         self.endpoints = {}
                         
         for endpoint, endpointInfo in paths.items():
-            # --- collecting all distinct endpoints, ignoring the _view params ---
+            # collecting all distinct endpoints, ignoring the _view params
             if "?_view" not in endpoint:
                 self.endpoints[endpoint] = {}
                 self.endpoints[endpoint]["paths"] = [endpoint]
@@ -56,11 +44,9 @@ class EndpointFunctionsGenerator:
                         paramName = p["name"]
                         
                         if (("required" in paramName) and (p["required"] == "true" or p["required"] == True)):
-                            # required.append({"api":p["name"], "camel":makeParamName(p["name"])})
                             required.add((paramName,makeParamName(paramName)))
                                 
                         else:
-                #             optional.append({"api":p["name"], "camel":makeParamName(p["name"])})
                             optional.add((paramName, makeParamName(paramName)))  
             else:
                 # get base endpoint, which is the string before the '?'
@@ -84,11 +70,6 @@ class EndpointFunctionsGenerator:
             
             return render
                 
-            
-        # print(self.endpoints["/data/readings"]["name"])
-        # print(self.endpoints["/data/readings"]["requiredParameters"])
-        # print(self.endpoints["/data/readings"]["optionalParameters"])
-        
         generateEndpointFunction(self.endpoints["/data/readings"]["name"],
                                  self.endpoints["/data/readings"]["requiredParameters"],
                                  self.endpoints["/data/readings"]["optionalParameters"],
@@ -106,8 +87,11 @@ class EndpointFunctionsGenerator:
         env = Environment(loader=FileSystemLoader('templates'))
         template = env.get_template('endpointFunctionsTemplate.txt')
         
-        endpointFunctions = template.render(functionStrings=functionStrings)         
+        endpointFunctions = template.render(functionStrings=functionStrings)    
         
+        if not os.path.exists(self.directory):
+            os.makedirs(self.directory)     
+            
         with open(f'{self.directory}/{self.outFile}', 'w') as f:
             f.write(endpointFunctions)   
         

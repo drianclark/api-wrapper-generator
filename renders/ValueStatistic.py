@@ -1,3 +1,4 @@
+
 class ValueStatistic:
 
     def __init__(self, dict):

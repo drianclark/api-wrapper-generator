@@ -1,3 +1,8 @@
+from renders.ObservedProperty import ObservedProperty
+from renders.ValueStatistic import ValueStatistic
+from renders.Station import Station
+from renders.ObservationType import ObservationType
+
 class TimeSeries:
 
     def __init__(self, dict):
@@ -11,17 +16,17 @@ class TimeSeries:
         except:
             pass
         
-        if "valueStatistic" in keys:
-            self._valueStatistic = ValueStatistic(dict["valueStatistic"])
-        
-        if "observationType" in keys:
-            self._observationType = ObservationType(dict["observationType"])
-        
         if "observedProperty" in keys:
             self._observedProperty = ObservedProperty(dict["observedProperty"])
         
+        if "valueStatistic" in keys:
+            self._valueStatistic = ValueStatistic(dict["valueStatistic"])
+        
         if "station" in keys:
             self._station = Station(dict["station"])
+        
+        if "observationType" in keys:
+            self._observationType = ObservationType(dict["observationType"])
         
     def label(self):
         try:

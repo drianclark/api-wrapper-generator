@@ -1,3 +1,4 @@
+
 class SampleOf:
 
     def __init__(self, dict):

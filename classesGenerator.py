@@ -1,11 +1,12 @@
 import json
+import os
 from collections import defaultdict
 from pprint import pprint
 from jinja2 import Template, Environment, FileSystemLoader
 from helpers import makeClassName
 
 class ClassesGenerator:
-    def __init__(self, config, spec, directory='/renders'):
+    def __init__(self, config, spec, directory='renders'):
         self.spec = spec
         self.directory = directory
         
@@ -46,8 +47,11 @@ class ClassesGenerator:
             
             # print(objectAttributes)
                     
-            render = template.render(className=className, properties=props, objectAttributes=objectAttributes)
+            render = template.render(className=className, properties=props, objectAttributes=objectAttributes, packageName=self.directory)
 
+            if not os.path.exists(self.directory):
+                os.makedirs(self.directory)
+            
             with open(f'{self.directory}/{className}.py', 'w') as f:
                 f.write(render)
 
