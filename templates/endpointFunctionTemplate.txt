@@ -14,6 +14,11 @@ def {{ name }}(
     except:
         raise ValueError("Request failed")
 
-    data = r.json()
+    items = r.json()["items"]
+    {% if "[" in returnType -%}
+    data = [{{ returnType[1:-1] }}(item) for item in items]
+    {% else -%}
+    data = {{returnType}}(items[0])
+    {% endif %}
 
     return data

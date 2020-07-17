@@ -1,6 +1,6 @@
+from renders.SampleOf import SampleOf
 from renders.Measures import Measures
 from renders.Status import Status
-from renders.SampleOf import SampleOf
 
 class Station:
 
@@ -15,14 +15,14 @@ class Station:
         except:
             pass
         
+        if "sampleOf" in keys:
+            self._sampleOf = SampleOf(dict["sampleOf"])
+        
         if "measures" in keys:
             self._measures = Measures(dict["measures"])
         
         if "status" in keys:
             self._status = Status(dict["status"])
-        
-        if "sampleOf" in keys:
-            self._sampleOf = SampleOf(dict["sampleOf"])
         
     def type(self):
         try:

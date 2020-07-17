@@ -1,6 +1,6 @@
-from renders.ObservedProperty import ObservedProperty
-from renders.ValueStatistic import ValueStatistic
 from renders.ObservationType import ObservationType
+from renders.ValueStatistic import ValueStatistic
+from renders.ObservedProperty import ObservedProperty
 
 class Measures:
 
@@ -15,14 +15,14 @@ class Measures:
         except:
             pass
         
-        if "observedProperty" in keys:
-            self._observedProperty = ObservedProperty(dict["observedProperty"])
+        if "observationType" in keys:
+            self._observationType = ObservationType(dict["observationType"])
         
         if "valueStatistic" in keys:
             self._valueStatistic = ValueStatistic(dict["valueStatistic"])
         
-        if "observationType" in keys:
-            self._observationType = ObservationType(dict["observationType"])
+        if "observedProperty" in keys:
+            self._observedProperty = ObservedProperty(dict["observedProperty"])
         
     def label(self):
         try:

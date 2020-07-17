@@ -10,7 +10,7 @@ class WrapperGenerator:
         self.packageName = packageName
 
         self.classesGenerator = ClassesGenerator(self.config, self.spec, self.packageName) 
-        self.functionsGenerator = EndpointFunctionsGenerator(self.spec, f'{self.packageName}.py', self.packageName)
+        self.functionsGenerator = EndpointFunctionsGenerator(self.config, self.spec, f'{self.packageName}.py', self.packageName)
 
     def generateWrapper(self):
         

@@ -8,11 +8,14 @@ from helpers import dotToCamel, kebabToCamel, makeFunctionName, makeParamName
 
 class EndpointFunctionsGenerator:
     # apiSpec is a json file
-    def __init__(self, apiSpec, outFile, directory='renders'):
+    def __init__(self, config, apiSpec, outFile, directory='renders'):
         self.apiSpec = apiSpec
         self.outFile = outFile
         self.directory = directory
         self.API_URL = "https://environment.data.gov.uk"
+        
+        with open(config) as f:
+            self.mappings = json.load(f)["mappings"]
         
         with open(self.apiSpec) as f:
             specs = jsonref.load(f)
@@ -55,30 +58,33 @@ class EndpointFunctionsGenerator:
                 self.endpoints[baseEndpoint]["optionalParameters"].add(("view","view"))
                 
     def generateEndpointFunctions(self):
-        def generateEndpointFunction(name, requiredParams, optionalParams, url):
+        def generateEndpointFunction(endpoint, name, requiredParams, optionalParams, url):
             env = Environment(loader=FileSystemLoader('templates'))
             template = env.get_template('endpointFunctionTemplate.txt')
             
             requiredParamsField = [p[1] for p in requiredParams]
             optionalParamsField = [p[1] + "=None" for p in optionalParams]
             paramsField = ',\n'.join(requiredParamsField + optionalParamsField)
+            returnType = self.mappings[endpoint] 
             
             render = template.render(name=name,
                                      paramsField=paramsField, 
                                      optionalParams=optionalParams, 
-                                     url=url)
+                                     url=url,
+                                     returnType=returnType)
             
             return render
                 
-        generateEndpointFunction(self.endpoints["/data/readings"]["name"],
-                                 self.endpoints["/data/readings"]["requiredParameters"],
-                                 self.endpoints["/data/readings"]["optionalParameters"],
-                                 "https://environment.data.gov.uk/hydrology/data/readings")
+        # generateEndpointFunction(self.endpoints["/data/readings"]["name"],
+        #                          self.endpoints["/data/readings"]["requiredParameters"],
+        #                          self.endpoints["/data/readings"]["optionalParameters"],
+        #                          "https://environment.data.gov.uk/hydrology/data/readings")
         
         functionStrings = []
         
         for endpoint, endpointInfo in self.endpoints.items():
-            functionStrings.append(generateEndpointFunction(endpointInfo["name"],
+            functionStrings.append(generateEndpointFunction(endpoint,
+                                                            endpointInfo["name"],
                                                             endpointInfo["requiredParameters"],
                                                             endpointInfo["optionalParameters"],
                                                             self.serverURL + endpoint))

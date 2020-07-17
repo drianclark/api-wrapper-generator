@@ -12,7 +12,7 @@ class ClassesGenerator:
         
         with open(config) as f:
             self.classes = json.load(f)["classes"]
-            print(self.classes)
+            # print(self.classes)
                 
     def generateClasses(self):
         env = Environment(loader=FileSystemLoader('templates'))
@@ -29,15 +29,15 @@ class ClassesGenerator:
             for _class,_prop in getObjectsRecursion(schema, schemas[schema]):
                 classProps[_class].append(_prop)
                 
-        pprint(classProps, indent=2)
+        # pprint(classProps, indent=2)
                     
         for schema, props in classProps.items():
             try:
                 className = self.classes[schema]
                 
             except KeyError:
-                className = makeClassName(schema)
                 print(f'{schema} not in configuration file. Will name class {className}.')
+                className = makeClassName(schema)
                 
             objectAttributes = set()
             for prop in props:
