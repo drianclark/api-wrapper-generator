@@ -6,13 +6,9 @@ from jinja2 import Template, Environment, FileSystemLoader
 from helpers import makeClassName
 
 class ClassesGenerator:
-    def __init__(self, config, spec, directory='renders'):
+    def __init__(self, spec, directory='renders'):
         self.spec = spec
         self.directory = directory
-        
-        with open(config) as f:
-            self.classes = json.load(f)["classes"]
-            # print(self.classes)
                 
     def generateClasses(self):
         env = Environment(loader=FileSystemLoader('templates'))
@@ -21,39 +17,56 @@ class ClassesGenerator:
         classProps = defaultdict(list)
         
         with open(self.spec) as f:
-            schemas = json.load(f)["components"]["schemas"]
+            jsonSpec = json.load(f)
             
-    # print(schemas)
-        for schema,className in self.classes.items():
-        # access the schema in the spec
-            for _class,_prop in getObjectsRecursion(schema, schemas[schema]):
-                classProps[_class].append(_prop)
+        paths = jsonSpec["paths"]
+        schemas = jsonSpec["components"]["schemas"]
+            
+        # collecting properties of each schema, including nested object properties
+        for schema, schemaInfo in schemas.items():
+            if "-default" in schema:
+                for _class,_prop in getObjectsRecursion(schema, schemaInfo):
+                    classProps[_class].append(_prop)
                 
         # pprint(classProps, indent=2)
-                    
-        for schema, props in classProps.items():
-            try:
-                className = self.classes[schema]
+        
+        # collect schema names using endpoint paths
+        for pathName, info in paths.items():
+            if "?_view" not in pathName:
+                noLeadingSlash = pathName[1:]
+                # this contains all the strings between slashes
+                splitBySlash = noLeadingSlash.split("/")
+                urlParams = [s for s in splitBySlash if '{' in s]
+                nonParams = [s for s in splitBySlash if '{' not in s]
                 
-            except KeyError:
-                print(f'{schema} not in configuration file. Will name class {className}.')
-                className = makeClassName(schema)
+                returnType = info["get"]["responses"]["200"]["content"]["application/json"]["schema"]["properties"]["items"]["type"]
+                returnObjectType = info["get"]["responses"]["200"]["content"]["application/json"]["schema"]["properties"]["items"]["items"]["$ref"].split("/")[-1]
                 
-            objectAttributes = set()
-            for prop in props:
-                for propName, propInfo in prop.items():
-                    if propName in list(classProps.keys()):
-                        objectAttributes.add(propName)
+                print(returnObjectType)
+                
+        # for schema, props in classProps.items():
+        #     try:
+        #         className = self.classes[schema]
+                
+        #     except KeyError:
+        #         print(f'{schema} not in configuration file. Will name class {className}.')
+        #         className = makeClassName(schema)
+                
+        #     objectAttributes = set()
+        #     for prop in props:
+        #         for propName, propInfo in prop.items():
+        #             if propName in list(classProps.keys()):
+        #                 objectAttributes.add(propName)
             
-            # print(objectAttributes)
+        #     # print(objectAttributes)
                     
-            render = template.render(className=className, properties=props, objectAttributes=objectAttributes, packageName=self.directory)
+        #     render = template.render(className=className, properties=props, objectAttributes=objectAttributes, packageName=self.directory)
 
-            if not os.path.exists(self.directory):
-                os.makedirs(self.directory)
+        #     if not os.path.exists(self.directory):
+        #         os.makedirs(self.directory)
             
-            with open(f'{self.directory}/{className}.py', 'w') as f:
-                f.write(render)
+        #     with open(f'{self.directory}/{className}.py', 'w') as f:
+        #         f.write(render)
 
             # for prop, propData in properties.items():
             #     if "allOf" in propData:
@@ -68,7 +81,7 @@ class ClassesGenerator:
                     #   as well as add the import statements
             
 
-c = ClassesGenerator("classes_conf.json", "hydrology-oas.json")
+c = ClassesGenerator("hydrology-oas.json")
 
 
 def getObjectsRecursion(key,dictionary):
