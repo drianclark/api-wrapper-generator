@@ -3,7 +3,7 @@ import os
 from collections import defaultdict
 from pprint import pprint
 from jinja2 import Template, Environment, FileSystemLoader
-from helpers import makeClassName
+from helpers import makeClassName, makeParamName
 
 class ClassesGenerator:
     def __init__(self, spec, directory='renders'):
@@ -28,25 +28,31 @@ class ClassesGenerator:
                 for _class,_prop in getObjectsRecursion(schema, schemaInfo):
                     classProps[_class].append(_prop)
                 
-        # pprint(classProps, indent=2)
         
-        # collect schema names using endpoint paths
+        # collect and construct class names using endpoint paths
         for pathName, info in paths.items():
             if "?_view" not in pathName:
                 noLeadingSlash = pathName[1:]
+                
                 # this contains all the strings between slashes
                 splitBySlash = noLeadingSlash.split("/")
-                urlParams = [s for s in splitBySlash if '{' in s]
+                urlParams = [makeClassName(s[1:-1]) for s in splitBySlash if '{' in s]
                 nonParams = [s for s in splitBySlash if '{' not in s]
                 
                 returnType = info["get"]["responses"]["200"]["content"]["application/json"]["schema"]["properties"]["items"]["type"]
                 returnObjectType = info["get"]["responses"]["200"]["content"]["application/json"]["schema"]["properties"]["items"]["items"]["$ref"].split("/")[-1]
                 
-                print(returnObjectType)
+                className = nonParams[-1]
+                
+                if len(urlParams) > 0:
+                    className += 'By'
+                    className += 'And'.join(urlParams)
+                    
+                print(className)
                 
         # for schema, props in classProps.items():
         #     try:
-        #         className = self.classes[schema]
+        #         className = 6c  self.classes[schema]
                 
         #     except KeyError:
         #         print(f'{schema} not in configuration file. Will name class {className}.')
