@@ -39,3 +39,21 @@ def makeClassName(s):
     pascal = camel[0].upper() + camel[1:]
     
     return pascal
+
+def getObjectsRecursion(key,dictionary):
+    for item in dictionary["allOf"]:
+        for k,v in item.items():
+            if k == "properties":
+                for k1,v1 in v.items():
+                    yield (key, {k1:v1})
+                    # print(key)
+                    # print({k1:v1})
+                    # print()
+                    # if v1 is an object, get its properties to make a class out of it later
+                    if v1.get("allOf") != None:
+                        for k2,v2 in getObjectsRecursion(k1, v1):
+                            # print(k2)
+                            # print(v2)
+                            # print()
+                            yield (k2,v2)
+                break
