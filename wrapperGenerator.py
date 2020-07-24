@@ -74,31 +74,33 @@ class WrapperGenerator:
             if endpointChoice == 'Finish':
                 return 'Finish'
             
-            print(endpointChoice)
-            
             returnTypeQuestion = [
                 {
                     'type': 'list',
                     'name': 'return_type',
                     'message': 'Does this endpoint return an array or a single object?',
-                    'choices': ['array', 'object']
+                    'choices': ['array', 'object', Separator(), 'Cancel']
                 }   
             ]
             
             returnType = prompt(returnTypeQuestion)['return_type']
-            print(returnType)
+            
+            if returnType == 'Cancel':
+                return
             
             classMappingQuestion = [
                 {
                     'type': 'list',
                     'name': 'class_mapping',
                     'message': 'To which class does this endpoint map to?',
-                    'choices': baseClasses.keys()
+                    'choices': list(baseClasses.keys()) + [Separator(), 'Cancel']
                 }   
             ]
             
             classMapping = prompt(classMappingQuestion)['class_mapping']
-            print(classMapping)
+
+            if classMapping == 'Cancel':
+                return
             
             newClassMapping = classMapping if returnType == 'object' else f'[{classMapping}]'
             endpointClassMappings[endpointChoice] = newClassMapping
@@ -106,7 +108,6 @@ class WrapperGenerator:
             print(endpointClassMappings)
             
         def showBaseClasses(baseClasses):
-            print(baseClasses)
             print('---------------------------------')
             print('Base Classes\n')
                     
@@ -120,11 +121,14 @@ class WrapperGenerator:
                 {
                     'type': 'input',
                     'name': 'className',
-                    'message': 'What would you like to name the new base class?'
+                    'message': 'What would you like to name the new base class? Type c to cancel.'
                 }
             ]
             
             className = prompt(classNameQuestion)['className']
+            
+            if className == 'c':
+                return
             
             schemaMappingQuestion = [
                 {
@@ -145,11 +149,14 @@ class WrapperGenerator:
                     'type': 'list',
                     'name': 'base_class',
                     'message': 'Which class would you like to rename?',
-                    'choices': baseClasses
+                    'choices': list(baseClasses.keys()) + [Separator(), 'Cancel']
                 }
             ]
             
             classToRename = prompt(baseClassChoice)['base_class']
+            
+            if classToRename == 'Cancel':
+                return
             
             newNameQuestion = [
                 {
@@ -181,11 +188,14 @@ class WrapperGenerator:
                     'type': 'list',
                     'name': 'remap_class',
                     'message': 'Which class would you like to change the mapping for?',
-                    'choices': baseClasses
+                    'choices': list(baseClasses.keys()) + [Separator(), 'Cancel']
                 }
             ]
                 
             classToRemap = prompt(classToRemapQuestion)['remap_class']
+            
+            if classToRemap == 'Cancel':
+                return
                 
             schemaMappingQuestion = [
                 {
@@ -206,15 +216,18 @@ class WrapperGenerator:
                     'type': 'list',
                     'name': 'delete_class',
                     'message': 'Which class would you like to delete?',
-                    'choices': baseClasses
+                    'choices': list(baseClasses.keys()) + [Separator(), 'Cancel']
                 }
             ]
             
             classToDelete = prompt(baseClassChoice)['delete_class']
             
+            if classToDelete == 'Cancel':
+                return
+            
             del baseClasses[classToDelete]
             
-        def displayNestedClasses(nestedClasses):
+        def showNestedClasses(nestedClasses):
             print('---------------------------------')
             print("Auto detected nested classes:\n")
             
@@ -290,7 +303,7 @@ class WrapperGenerator:
                 
             showBaseClasses(baseClasses)
             
-        displayNestedClasses(nestedClasses)
+        showNestedClasses(nestedClasses)
         
         while True:
             action = endpointClassMappingMenu(baseClasses, endpointClassMappings)
