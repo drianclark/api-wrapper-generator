@@ -30,17 +30,8 @@ class WrapperGenerator:
             print("\nConfig file not found. Initialising configuration setup\n")
             self.configSetup()
 
-    def configSetup(self):
-        def showBaseClasses(baseClasses):
-            print('---------------------------------')
-            print('Base Classes\n')
-                
-            for className, schemaName in baseClasses.items():
-                print(f'{className}: {schemaName}')
-            
-            print()
-        
-        def mainMenu(baseClasses):
+    def configSetup(self):        
+        def baseClassesEditMenu(baseClasses):
             actionQs = [
                 {
                     'type': 'list',
@@ -63,6 +54,66 @@ class WrapperGenerator:
 
             action = prompt(actionQs)["actions"]
             return action
+        
+        def endpointClassMappingMenu(baseClasses, endpointClassMappings):
+            endpointClassChoices = [f'{endpoint}: {classMapping}' for endpoint, classMapping 
+                                    in endpointClassMappings.items()]
+            
+            endpointClassChoices += [Separator(), 'Finish']
+            
+            endpointClassMappingQuestion = [
+                {
+                    'type': 'list',
+                    'name': 'endpointChoice',
+                    'message': 'Here, you can edit the return types for each endpoint',
+                    'choices': endpointClassChoices
+                }   
+            ]
+            
+            endpointChoice = prompt(endpointClassMappingQuestion)['endpointChoice'].split(':')[0]
+            if endpointChoice == 'Finish':
+                return 'Finish'
+            
+            print(endpointChoice)
+            
+            returnTypeQuestion = [
+                {
+                    'type': 'list',
+                    'name': 'return_type',
+                    'message': 'Does this endpoint return an array or a single object?',
+                    'choices': ['array', 'object']
+                }   
+            ]
+            
+            returnType = prompt(returnTypeQuestion)['return_type']
+            print(returnType)
+            
+            classMappingQuestion = [
+                {
+                    'type': 'list',
+                    'name': 'class_mapping',
+                    'message': 'To which class does this endpoint map to?',
+                    'choices': baseClasses.keys()
+                }   
+            ]
+            
+            classMapping = prompt(classMappingQuestion)['class_mapping']
+            print(classMapping)
+            
+            newClassMapping = classMapping if returnType == 'object' else f'[{classMapping}]'
+            endpointClassMappings[endpointChoice] = newClassMapping
+            
+            print(endpointClassMappings)
+            
+        def showBaseClasses(baseClasses):
+            print(baseClasses)
+            print('---------------------------------')
+            print('Base Classes\n')
+                    
+            for className, schemaName in baseClasses.items():
+                print(f'{className}: {schemaName}')
+                
+            print()
         
         def addBaseClassMenu(baseClasses, schemaNames):
             classNameQuestion = [
@@ -88,7 +139,7 @@ class WrapperGenerator:
             
             baseClasses[className] = schema
             
-        def renameBaseClassMenu(baseClasses):
+        def renameBaseClassMenu(baseClasses, renameMap):
             baseClassChoice = [
                 {
                     'type': 'list',
@@ -108,10 +159,21 @@ class WrapperGenerator:
                 }
             ]
             
-            newName = prompt(newNameQuestion)['new_name']
-            
+            newName = prompt(newNameQuestion)['new_name']            
             baseClasses[newName] = baseClasses[classToRename]
-            del baseClasses[classToRename]
+            
+            # if renaming a class that's already been renamed,
+            # the key in renameMap should remain as the original class name
+            # instead of making a new entry
+            if classToRename in renameMap.values():
+                for original, rename in renameMap.items():
+                    if classToRename == rename:
+                        renameMap[original] = newName    
+            else:
+                renameMap[classToRename] = newName
+                
+            if newName != classToRename:
+                del baseClasses[classToRename]
             
         def remapBaseClassMenu(baseClasses, schemaNames):
             classToRemapQuestion = [
@@ -152,15 +214,38 @@ class WrapperGenerator:
             
             del baseClasses[classToDelete]
             
-        # get auto detected schema-class mappings
-        classMappings = self.getClassMappingsFromSpec()
-        schemaNames = self.getSchemaNameFromSpec()
+        def displayNestedClasses(nestedClasses):
+            print('---------------------------------')
+            print("Auto detected nested classes:\n")
+            
+            for className, schemaName in nestedClasses.items():
+                print(f'{className}: {schemaName}')
+            
+            print()
+                
+            proceed = [
+                {
+                    'type': 'list',
+                    'message': '',
+                    'name': 'continue',
+                    'choices': ['Proceed']
+                }
+            ]
+
+            proceedConfirmation = prompt(proceed)['continue']
+            
+        # auto detect schema-class mappings and schema names
+        classMappings = self.getClassSchemaMappingsFromSpec()
+        schemaNames = self.getSchemaNameFromSpec()        
         
         # base classes are the classes with a corresponding component schema (not nested within one)
         baseClasses = {}
         
         # nested classes are those found within the base classes
         nestedClasses = {}
+        
+        # keep track of renamed classes for future reference
+        renameMap = {}
         
         for className, schemaName in classMappings.items():
             if '-' in schemaName:
@@ -180,9 +265,12 @@ class WrapperGenerator:
                 print(f'{className}: {schemaName}')
                 
             print()
+            
+        # auto detect endpoint-class mappings
+        endpointClassMappings = self.getEndpointClassMappingsFromSpec(baseClasses, renameMap)
                 
         while True:
-            action = mainMenu(baseClasses)
+            action = baseClassesEditMenu(baseClasses)
             
             if action == 'Proceed':
                 break
@@ -191,7 +279,8 @@ class WrapperGenerator:
                 addBaseClassMenu(baseClasses, schemaNames)
                 
             elif action == 'Rename a base class':
-                renameBaseClassMenu(baseClasses)
+                renameBaseClassMenu(baseClasses, renameMap)
+                print(renameMap)
                 
             elif action == 'Delete a base class':
                 deleteBaseClassMenu(baseClasses)
@@ -201,8 +290,18 @@ class WrapperGenerator:
                 
             showBaseClasses(baseClasses)
             
+        displayNestedClasses(nestedClasses)
         
-    def getClassMappingsFromSpec(self):
+        while True:
+            action = endpointClassMappingMenu(baseClasses, endpointClassMappings)
+            
+            if action == 'Finish':
+                break
+        
+        print("Generating config file")
+        
+        
+    def getClassSchemaMappingsFromSpec(self):
         classes = {}
         
         # collecting properties of each schema, including nested object properties
@@ -215,7 +314,7 @@ class WrapperGenerator:
                         
         # collect and construct class names using endpoint paths
         for pathName, info in self.paths.items():
-            if "?_view" not in pathName:
+            if "?_view" not in pathName and '{' not in pathName:
                 noLeadingSlash = pathName[1:]
                             
                 # this contains all the strings between slashes
@@ -235,6 +334,29 @@ class WrapperGenerator:
         schemaNames = list(filter(lambda s: '-' in s, self.schemas.keys()))
             
         return schemaNames
+    
+    def getEndpointClassMappingsFromSpec(self, baseClasses, renameMap):
+        endpointClassMappings = {}
+        
+        for pathName, pathInfo in self.paths.items():
+            if "?_view" not in pathName:
+                metadataType = pathInfo["get"]["responses"]["200"]["content"]["application/json"]["schema"]["properties"]["meta"]["$ref"]
+                returnType = 'array' if 'list' in metadataType else 'object'
+                
+                noLeadingSlash = pathName[1:]
+                splitBySlash = noLeadingSlash.split("/")
+                className = makeClassName([s for s in splitBySlash if '{' not in s][-1])
+                
+                # if this class name has been renamed, change it to what it's been renamed as
+                try:
+                    className = renameMap[className]
+                except KeyError:
+                    pass
+                                
+                mapping = className if returnType == 'object' else f'[{className}]'
+                endpointClassMappings[pathName] = mapping
+        
+        return endpointClassMappings
                                     
     def generateWrapper(self):
         
