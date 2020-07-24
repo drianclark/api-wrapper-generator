@@ -22,10 +22,43 @@ class WrapperGenerator:
         self.schemas = jsonSpec["components"]["schemas"]
         
         if os.path.exists(config):
-            print("config exists")
             with open(self.config) as f:
-                print(f"Found config file: {config}")
-                self.classes = json.load(f)["classes"]
+                print(f"Found config file: {config}\n")
+                pprint(json.load(f), indent=2)
+                print()
+                
+                configConfirmationQ = [
+                    {
+                        'type': 'list',
+                        'name': 'config_confirmation',
+                        'message': 'Would you like to use the configuration displayed above?',
+                        'choices': ['Yes', 'No']
+                    }
+                ]
+                
+                confirmed = prompt(configConfirmationQ)['config_confirmation']
+                
+                if confirmed == 'No':
+                    print('Entering configuration setup')
+                    print()
+                    
+                    confirmOverwriteQ = [
+                        {
+                            'type': 'list',
+                            'name': 'confirm_overwrite',
+                            'message': f'WARNING: This will overwrite the configuration file {self.config}',
+                            'choices': ['Proceed', 'Cancel']
+                        }
+                    ]
+                    
+                    confirmOverwrite = prompt(confirmOverwriteQ)['confirm_overwrite']
+                    
+                    if confirmOverwrite == 'Cancel':
+                        return
+                    
+                    else:                    
+                        self.configSetup()
+                
         else:
             print("\nConfig file not found. Initialising configuration setup\n")
             self.configSetup()
@@ -266,7 +299,6 @@ class WrapperGenerator:
             else:
                 nestedClasses[className] = schemaName
 
-                
         if len(baseClasses) == 0:
             print('No base classes detected')
             
@@ -312,7 +344,8 @@ class WrapperGenerator:
                 break
         
         print("Generating config file")
-        
+        self.writeConfigurationToFile(baseClasses, endpointClassMappings)
+        print(f"Generated config file: {self.config}")
         
     def getClassSchemaMappingsFromSpec(self):
         classes = {}
@@ -370,6 +403,15 @@ class WrapperGenerator:
                 endpointClassMappings[pathName] = mapping
         
         return endpointClassMappings
+    
+    def writeConfigurationToFile(self, baseClasses, endpointClassMappings):
+        config = {
+            'classes': baseClasses,
+            'returnTypes': endpointClassMappings
+        }
+                
+        with open(self.config, 'w') as f:
+            json.dump(config, f, indent=2)
                                     
     def generateWrapper(self):
         
