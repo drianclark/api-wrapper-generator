@@ -24,9 +24,10 @@ class ClassesGenerator:
             schemas = json.load(f)["components"]["schemas"]
             
     # print(schemas)
-        for schema,className in self.classes.items():
+        for schema, className in self.classes.items():
         # access the schema in the spec
             for _class,_prop in getObjectsRecursion(schema, schemas[schema]):
+                print(_class, _prop)
                 classProps[_class].append(_prop)
                 
         # pprint(classProps, indent=2)
@@ -36,8 +37,8 @@ class ClassesGenerator:
                 className = self.classes[schema]
                 
             except KeyError:
-                print(f'{schema} not in configuration file. Will name class {className}.')
                 className = makeClassName(schema)
+                print(f'{schema} not in configuration file. Will name class {className}.')
                 
             objectAttributes = set()
             for prop in props:
@@ -45,7 +46,6 @@ class ClassesGenerator:
                     if propName in list(classProps.keys()):
                         objectAttributes.add(propName)
             
-            # print(objectAttributes)
                     
             render = template.render(className=className, properties=props, objectAttributes=objectAttributes, packageName=self.directory)
 
@@ -55,18 +55,6 @@ class ClassesGenerator:
             with open(f'{self.directory}/{className}.py', 'w') as f:
                 f.write(render)
 
-            # for prop, propData in properties.items():
-            #     if "allOf" in propData:
-            #         for 
-            #for property in properties
-                # recursively check
-                    # if it has "allOf"
-                    # then see if type is object
-                    #   then create a class for object
-                    #   make sure to add the correct class constructor calls in the 
-                    #   class containing the object
-                    #   as well as add the import statements
-            
 def getObjectsRecursion(key,dictionary):
     for item in dictionary["allOf"]:
         for k,v in item.items():

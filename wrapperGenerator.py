@@ -18,16 +18,8 @@ class WrapperGenerator:
                 
         self.paths = jsonSpec["paths"]
         self.schemas = jsonSpec["components"]["schemas"]
-
-        try:
-            self.classesGenerator = ClassesGenerator(self.config, self.spec, self.packageName) 
-            self.functionsGenerator = EndpointFunctionsGenerator(self.config, self.spec, f'{self.packageName}.py', self.packageName)
-        
-        except FileNotFoundError:
-            self.initialiseConfigSetup()
         
     def initialiseConfigSetup(self):
-        
         if os.path.exists(self.config):
             with open(self.config) as f:
                 print(f"\nFound config file: {self.config}\n")
@@ -65,10 +57,33 @@ class WrapperGenerator:
                         
                     else:                    
                         self.configSetup()
+                        
+                else:
+                    self.classesGenerator = ClassesGenerator(self.config, self.spec, self.packageName) 
+                    self.functionsGenerator = EndpointFunctionsGenerator(self.config, self.spec, f'{self.packageName}.py', self.packageName)
+
+            runGenerator = self.promptGeneratorRun()
+            
+            if runGenerator:
+                self.generateWrapper()
                     
         else:
             print("\nConfig file not found. Initialising configuration setup\n")
             self.configSetup()
+
+    def promptGeneratorRun(self):
+        generatorRunQuestion = [
+            {
+                'type': 'list',
+                'name': 'run',
+                'message': 'Would you like to generate the wrapper now?',
+                'choices': ['No', 'Yes']
+            }
+        ]
+                
+        choice = prompt(generatorRunQuestion)["run"] == 'Yes'
+                
+        return choice
 
     def configSetup(self):        
         def baseClassesEditMenu(baseClasses):
@@ -99,7 +114,7 @@ class WrapperGenerator:
             endpointClassChoices = [f'{endpoint}: {classMapping}' for endpoint, classMapping 
                                     in endpointClassMappings.items()]
             
-            endpointClassChoices += [Separator(), 'Finish']
+            endpointClassChoices += [Separator(), 'Generate config file']
             
             endpointClassMappingQuestion = [
                 {
@@ -111,8 +126,8 @@ class WrapperGenerator:
             ]
             
             endpointChoice = prompt(endpointClassMappingQuestion)['endpointChoice'].split(':')[0]
-            if endpointChoice == 'Finish':
-                return 'Finish'
+            if endpointChoice == 'Generate config file':
+                return 'Generate config file'
             
             returnTypeQuestion = [
                 {
@@ -287,6 +302,8 @@ class WrapperGenerator:
 
             proceedConfirmation = prompt(proceed)['continue']
             
+        
+            
         # auto detect schema-class mappings and schema names
         classMappings = self.getClassSchemaMappingsFromSpec()
         schemaNames = self.getSchemaNameFromSpec()        
@@ -302,9 +319,9 @@ class WrapperGenerator:
         
         for className, schemaName in classMappings.items():
             if '-' in schemaName:
-                baseClasses[className] = schemaName
+                baseClasses[schemaName] = className
             else:
-                nestedClasses[className] = schemaName
+                nestedClasses[schemaName] = className
 
         if len(baseClasses) == 0:
             print('No base classes detected')
@@ -347,13 +364,21 @@ class WrapperGenerator:
         while True:
             action = endpointClassMappingMenu(baseClasses, endpointClassMappings)
             
-            if action == 'Finish':
+            if action == 'Generate config file':
                 break
         
         print("Generating config file")
         self.writeConfigurationToFile(baseClasses, endpointClassMappings)
         print(f"Generated config file: {self.config}")
         
+        self.classesGenerator = ClassesGenerator(self.config, self.spec, self.packageName) 
+        self.functionsGenerator = EndpointFunctionsGenerator(self.config, self.spec, f'{self.packageName}.py', self.packageName)
+        
+        runGenerator = self.promptGeneratorRun()
+        
+        if runGenerator:
+            self.generateWrapper()
+            
     def getClassSchemaMappingsFromSpec(self):
         classes = {}
         
@@ -419,19 +444,24 @@ class WrapperGenerator:
                 
         with open(self.config, 'w') as f:
             json.dump(config, f, indent=2)
-                                    
+            
     def generateWrapper(self):
         
         # create output directory for package
         if not os.path.exists(self.packageName):
+            print("Creating wrapper directory")
             os.makedirs(self.packageName)
             
         # create __init__.py
+        print("Creating __init__.py")
         f = open(f'{self.packageName}/__init__.py','w+')
         f.close()
             
+        print("Generating classes")
         self.classesGenerator.generateClasses()
+        print("Generating functions")
         self.functionsGenerator.generateEndpointFunctions()
+        print("Wrapper generated!")
         
 w = WrapperGenerator('hydrology-oas.json')
                 

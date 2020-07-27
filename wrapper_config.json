@@ -1,8 +1,8 @@
 {
   "classes": {
-    "Measures": "timeseriesEndpoint-default",
-    "Readings": "dataEndpoint-default",
-    "Stations": "stationsEndpoint-default"
+    "timeseriesEndpoint-default": "Measures",
+    "dataEndpoint-default": "Readings",
+    "stationsEndpoint-default": "Stations"
   },
   "returnTypes": {
     "/data/readings": "[Readings]",

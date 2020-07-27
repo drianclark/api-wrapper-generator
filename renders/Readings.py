@@ -1,5 +1,5 @@
 
-class Reading:
+class Readings:
 
     def __init__(self, dict):
         for k, v in dict.items():
@@ -69,33 +69,6 @@ class Reading:
     def qcode(self):
         try:
             value = self._qcode
-        except AttributeError:
-            value = None
-
-        return value
-        
-        
-    def valid(self):
-        try:
-            value = self._valid
-        except AttributeError:
-            value = None
-
-        return value
-        
-        
-    def invalid(self):
-        try:
-            value = self._invalid
-        except AttributeError:
-            value = None
-
-        return value
-        
-        
-    def missing(self):
-        try:
-            value = self._missing
         except AttributeError:
             value = None
 
