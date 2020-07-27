@@ -12,21 +12,28 @@ class WrapperGenerator:
         self.spec = apiSpec
         self.config = config
         self.packageName = packageName
-
-        # self.classesGenerator = ClassesGenerator(self.config, self.spec, self.packageName) 
-        # self.functionsGenerator = EndpointFunctionsGenerator(self.config, self.spec, f'{self.packageName}.py', self.packageName)
+        
         with open(self.spec) as f:
             jsonSpec = json.load(f)
                 
         self.paths = jsonSpec["paths"]
         self.schemas = jsonSpec["components"]["schemas"]
+
+        try:
+            self.classesGenerator = ClassesGenerator(self.config, self.spec, self.packageName) 
+            self.functionsGenerator = EndpointFunctionsGenerator(self.config, self.spec, f'{self.packageName}.py', self.packageName)
         
-        if os.path.exists(config):
+        except FileNotFoundError:
+            self.initialiseConfigSetup()
+        
+    def initialiseConfigSetup(self):
+        
+        if os.path.exists(self.config):
             with open(self.config) as f:
-                print(f"Found config file: {config}\n")
+                print(f"\nFound config file: {self.config}\n")
                 pprint(json.load(f), indent=2)
                 print()
-                
+                    
                 configConfirmationQ = [
                     {
                         'type': 'list',
@@ -35,13 +42,13 @@ class WrapperGenerator:
                         'choices': ['Yes', 'No']
                     }
                 ]
-                
+                    
                 confirmed = prompt(configConfirmationQ)['config_confirmation']
-                
+                    
                 if confirmed == 'No':
                     print('Entering configuration setup')
                     print()
-                    
+                        
                     confirmOverwriteQ = [
                         {
                             'type': 'list',
@@ -50,15 +57,15 @@ class WrapperGenerator:
                             'choices': ['Proceed', 'Cancel']
                         }
                     ]
-                    
+                        
                     confirmOverwrite = prompt(confirmOverwriteQ)['confirm_overwrite']
-                    
+                        
                     if confirmOverwrite == 'Cancel':
                         return
-                    
+                        
                     else:                    
                         self.configSetup()
-                
+                    
         else:
             print("\nConfig file not found. Initialising configuration setup\n")
             self.configSetup()
@@ -426,7 +433,9 @@ class WrapperGenerator:
         self.classesGenerator.generateClasses()
         self.functionsGenerator.generateEndpointFunctions()
         
-w = WrapperGenerator('hydrology-oas.json', 'classes_conf.json')
+w = WrapperGenerator('hydrology-oas.json')
                 
+if __name__ == '__main__':
+    w.initialiseConfigSetup()
     
     

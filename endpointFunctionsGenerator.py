@@ -15,7 +15,7 @@ class EndpointFunctionsGenerator:
         self.API_URL = "https://environment.data.gov.uk"
         
         with open(config) as f:
-            self.mappings = json.load(f)["mappings"]
+            self.mappings = json.load(f)["returnTypes"]
         
         with open(self.apiSpec) as f:
             specs = jsonref.load(f)

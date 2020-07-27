@@ -67,10 +67,6 @@ class ClassesGenerator:
                     #   class containing the object
                     #   as well as add the import statements
             
-
-c = ClassesGenerator("classes_conf.json", "hydrology-oas.json")
-
-
 def getObjectsRecursion(key,dictionary):
     for item in dictionary["allOf"]:
         for k,v in item.items():
