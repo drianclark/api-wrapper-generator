@@ -1,17 +1,18 @@
-from __future__ import print_function, unicode_literals
 import json
 import os
-from PyInquirer import prompt, print_json
 from collections import defaultdict
 from pprint import pprint
 from jinja2 import Template, Environment, FileSystemLoader
-from helpers import makeClassName, getObjectsRecursion
+from helpers import makeClassName
 
 class ClassesGenerator:
-    def __init__(self, spec, directory='renders', config='wrapper_config.json'):
+    def __init__(self, config, spec, directory='renders'):
         self.spec = spec
         self.directory = directory
         
+        with open(config) as f:
+            self.classes = json.load(f)["classes"]
+            # print(self.classes)
                 
     def generateClasses(self):
         env = Environment(loader=FileSystemLoader('templates'))
@@ -20,40 +21,16 @@ class ClassesGenerator:
         classProps = defaultdict(list)
         
         with open(self.spec) as f:
-            jsonSpec = json.load(f)
-                
-        paths = jsonSpec["paths"]
-        schemas = jsonSpec["components"]["schemas"]
-        
-        # collecting properties of each schema, including nested object properties
-        for schema, schemaInfo in schemas.items():
-            if "-default" in schema:
-                for _class,_prop in getObjectsRecursion(schema, schemaInfo):
-                    classProps[_class].append(_prop)
-                    
+            schemas = json.load(f)["components"]["schemas"]
             
-        # collect and construct class names using endpoint paths
-        for pathName, info in paths.items():
-            if "?_view" not in pathName:
-                noLeadingSlash = pathName[1:]
-                    
-                # this contains all the strings between slashes
-                splitBySlash = noLeadingSlash.split("/")
-                urlParams = [makeClassName(s[1:-1]) for s in splitBySlash if '{' in s]
-                nonParams = [s for s in splitBySlash if '{' not in s]
-                    
-                returnType = info["get"]["responses"]["200"]["content"]["application/json"]["schema"]["properties"]["items"]["type"]
-                returnObjectType = info["get"]["responses"]["200"]["content"]["application/json"]["schema"]["properties"]["items"]["items"]["$ref"].split("/")[-1]
-                    
-                className = nonParams[-1]
-                        
-                print(className)
-            
+    # print(schemas)
         for schema,className in self.classes.items():
         # access the schema in the spec
             for _class,_prop in getObjectsRecursion(schema, schemas[schema]):
                 classProps[_class].append(_prop)
                 
+        # pprint(classProps, indent=2)
+                    
         for schema, props in classProps.items():
             try:
                 className = self.classes[schema]
@@ -78,4 +55,37 @@ class ClassesGenerator:
             with open(f'{self.directory}/{className}.py', 'w') as f:
                 f.write(render)
 
+            # for prop, propData in properties.items():
+            #     if "allOf" in propData:
+            #         for 
+            #for property in properties
+                # recursively check
+                    # if it has "allOf"
+                    # then see if type is object
+                    #   then create a class for object
+                    #   make sure to add the correct class constructor calls in the 
+                    #   class containing the object
+                    #   as well as add the import statements
+            
+
 c = ClassesGenerator("classes_conf.json", "hydrology-oas.json")
+
+
+def getObjectsRecursion(key,dictionary):
+    for item in dictionary["allOf"]:
+        for k,v in item.items():
+            if k == "properties":
+                for k1,v1 in v.items():
+                    yield (key, {k1:v1})
+                    # print(key)
+                    # print({k1:v1})
+                    # print()
+                    # if v1 is an object, get its properties to make a class out of it later
+                    if v1.get("allOf") != None:
+                        for k2,v2 in getObjectsRecursion(k1, v1):
+                            # print(k2)
+                            # print(v2)
+                            # print()
+                            yield (k2,v2)
+                break
+                
