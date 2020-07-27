@@ -27,7 +27,6 @@ class ClassesGenerator:
         for schema, className in self.classes.items():
         # access the schema in the spec
             for _class,_prop in getObjectsRecursion(schema, schemas[schema]):
-                print(_class, _prop)
                 classProps[_class].append(_prop)
                 
         # pprint(classProps, indent=2)

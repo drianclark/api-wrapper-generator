@@ -3,12 +3,14 @@ def {{ name }}(
 ):
 
     params = {}
+    params['_limit'] = 5
 {% for p in optionalParams %}
     if {{ p[1] }} != None:
         params[{{ "'" + p[0] + "'" }}] = {{p[1]}}
 {% endfor %}
+
     try:
-        r = requests.get({{ "'" + url + "'" }}, params=params)
+        r = requests.get({{ "'" + url + ".json'"}}, params=params)
         r.raise_for_status()
 
     except:

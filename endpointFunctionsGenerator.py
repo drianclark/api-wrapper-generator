@@ -75,11 +75,6 @@ class EndpointFunctionsGenerator:
             
             return render
                 
-        # generateEndpointFunction(self.endpoints["/data/readings"]["name"],
-        #                          self.endpoints["/data/readings"]["requiredParameters"],
-        #                          self.endpoints["/data/readings"]["optionalParameters"],
-        #                          "https://environment.data.gov.uk/hydrology/data/readings")
-        
         functionStrings = []
         
         for endpoint, endpointInfo in self.endpoints.items():
