@@ -1,4 +1,11 @@
+{% macro pascalCase(s) -%}
+    {{ s[0]|upper}}{{s[1:] -}}
+{% endmacro -%}
 import requests
+{% for class in mappings -%}
+from {{ class }} import {{ class }}
+{% endfor %}
+class {{ pascalCase(packageName) }}:
 {% for function in functionStrings %}
-{{ function }}
+    {{ function | indent }}
 {% endfor %}

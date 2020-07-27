@@ -78,7 +78,7 @@ class EndpointFunctionsGenerator:
             requiredParamsField = [p[1] for p in requiredParams]
             optionalParamsField = [p[1] + "=None" for p in optionalParams]
             paramsField = ',\n'.join(requiredParamsField + optionalParamsField)
-            returnType = self.mappings[endpoint] 
+            returnType = self.mappings[endpoint]
             
             render = template.render(name=name,
                                      paramsField=paramsField, 
@@ -100,8 +100,9 @@ class EndpointFunctionsGenerator:
         
         env = Environment(loader=FileSystemLoader('templates'))
         template = env.get_template('endpointFunctionsTemplate.txt')
+        mappings = set([c for c in self.mappings.values() if '[' not in c])
         
-        endpointFunctions = template.render(functionStrings=functionStrings)    
+        endpointFunctions = template.render(functionStrings=functionStrings, packageName=self.directory, mappings=mappings)    
         
         if not os.path.exists(self.directory):
             os.makedirs(self.directory)     

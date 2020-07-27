@@ -23,21 +23,17 @@ class ClassesGenerator:
         with open(self.spec) as f:
             schemas = json.load(f)["components"]["schemas"]
             
-    # print(schemas)
         for schema, className in self.classes.items():
         # access the schema in the spec
             for _class,_prop in getObjectsRecursion(schema, schemas[schema]):
                 classProps[_class].append(_prop)
                 
-        # pprint(classProps, indent=2)
-                    
         for schema, props in classProps.items():
             try:
                 className = self.classes[schema]
                 
             except KeyError:
                 className = makeClassName(schema)
-                print(f'{schema} not in configuration file. Will name class {className}.')
                 
             objectAttributes = set()
             for prop in props:
@@ -60,15 +56,9 @@ def getObjectsRecursion(key,dictionary):
             if k == "properties":
                 for k1,v1 in v.items():
                     yield (key, {k1:v1})
-                    # print(key)
-                    # print({k1:v1})
-                    # print()
                     # if v1 is an object, get its properties to make a class out of it later
                     if v1.get("allOf") != None:
                         for k2,v2 in getObjectsRecursion(k1, v1):
-                            # print(k2)
-                            # print(v2)
-                            # print()
                             yield (k2,v2)
                 break
                 
