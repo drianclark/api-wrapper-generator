@@ -4,7 +4,7 @@ import os
 from pprint import pprint
 from jinja2 import Template, Environment, FileSystemLoader
 from prance import ResolvingParser
-from helpers import dotToCamel, kebabToCamel, makeFunctionName, makeParamName
+from helpers import dotToCamel, kebabToCamel, makeFunctionName, makeParamName, makeClassName
 
 class EndpointFunctionsGenerator:
     # apiSpec is a json file
@@ -23,13 +23,26 @@ class EndpointFunctionsGenerator:
             self.serverURL = self.API_URL + specs["servers"][0]["url"]
             
         self.endpoints = {}
-                        
+            
         for endpoint, endpointInfo in paths.items():
             # collecting all distinct endpoints, ignoring the _view params
             if "?_view" not in endpoint:
+                noLeadingSlash = endpoint[1:]
+                    
+                # this contains all the strings between slashes
+                splitBySlash = noLeadingSlash.split("/")
+                urlParams = [makeClassName(s[1:-1]) for s in splitBySlash if '{' in s]
+                nonParams = [s for s in splitBySlash if '{' not in s]
+                    
+                functionName = nonParams[-1]
+                    
+                if len(urlParams) > 0:
+                    functionName += 'By'
+                    functionName += 'And'.join(urlParams)
+                        
                 self.endpoints[endpoint] = {}
                 self.endpoints[endpoint]["paths"] = [endpoint]
-                self.endpoints[endpoint]["name"] = makeFunctionName(endpointInfo["description"])
+                self.endpoints[endpoint]["name"] = functionName
                 
                 parameters = endpointInfo["parameters"]
                 parameters += endpointInfo["get"]["parameters"]

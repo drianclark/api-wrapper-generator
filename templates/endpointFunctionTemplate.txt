@@ -3,7 +3,9 @@ def {{ name }}(
 ):
 
     params = {}
+    {% if "[" in returnType -%}
     params['_limit'] = 5
+    {% endif -%}
 {% for p in optionalParams %}
     if {{ p[1] }} != None:
         params[{{ "'" + p[0] + "'" }}] = {{p[1]}}
