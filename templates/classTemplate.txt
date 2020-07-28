@@ -1,12 +1,13 @@
 {% macro pascalCase(s) -%}
     {{ s[0]|upper}}{{s[1:] -}}
 {% endmacro -%}
-{% for objectAttribute in objectAttributes -%}
-from {{ pascalCase(objectAttribute) }} import {{ pascalCase(objectAttribute) }}
-{% endfor %}
 class {{ className }}:
 
     def __init__(self, dict):
+        {% for objectAttribute in objectAttributes -%}
+        from {{ pascalCase(objectAttribute) }} import {{ pascalCase(objectAttribute) }}
+        {% endfor %}
+
         for k, v in dict.items():
             setattr(self, "_" + k, v)
 

@@ -1,7 +1,8 @@
-
 class ObservationType:
 
     def __init__(self, dict):
+        
+
         for k, v in dict.items():
             setattr(self, "_" + k, v)
 

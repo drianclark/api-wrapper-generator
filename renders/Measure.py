@@ -1,11 +1,12 @@
-from ValueStatistic import ValueStatistic
-from ObservationType import ObservationType
-from ObservedProperty import ObservedProperty
-from Station import Station
-
 class Measure:
 
     def __init__(self, dict):
+        from Station import Station
+        from ObservationType import ObservationType
+        from ObservedProperty import ObservedProperty
+        from ValueStatistic import ValueStatistic
+        
+
         for k, v in dict.items():
             setattr(self, "_" + k, v)
 
@@ -16,8 +17,8 @@ class Measure:
         except:
             pass
         
-        if "valueStatistic" in keys:
-            self._valueStatistic = ValueStatistic(dict["valueStatistic"])
+        if "station" in keys:
+            self._station = Station(dict["station"])
         
         if "observationType" in keys:
             self._observationType = ObservationType(dict["observationType"])
@@ -25,8 +26,8 @@ class Measure:
         if "observedProperty" in keys:
             self._observedProperty = ObservedProperty(dict["observedProperty"])
         
-        if "station" in keys:
-            self._station = Station(dict["station"])
+        if "valueStatistic" in keys:
+            self._valueStatistic = ValueStatistic(dict["valueStatistic"])
         
     def label(self):
         try:

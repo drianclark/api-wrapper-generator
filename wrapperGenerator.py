@@ -193,7 +193,7 @@ class WrapperGenerator:
             
             schema = prompt(schemaMappingQuestion)['schema_mapping']
             
-            baseClasses[className] = schema
+            baseClasses[schema] = className
             
         def renameBaseClassMenu(baseClasses, renameMap):
             baseClassChoice = [
@@ -201,7 +201,7 @@ class WrapperGenerator:
                     'type': 'list',
                     'name': 'base_class',
                     'message': 'Which class would you like to rename?',
-                    'choices': list(baseClasses.keys()) + [Separator(), 'Cancel']
+                    'choices': list(baseClasses.values()) + [Separator(), 'Cancel']
                 }
             ]
             
@@ -209,6 +209,11 @@ class WrapperGenerator:
             
             if classToRename == 'Cancel':
                 return
+            
+            for k,v in baseClasses.items():
+                if v == classToRename:
+                    schemaToRename = k
+                    break
             
             newNameQuestion = [
                 {
@@ -219,7 +224,7 @@ class WrapperGenerator:
             ]
             
             newName = prompt(newNameQuestion)['new_name']            
-            baseClasses[newName] = baseClasses[classToRename]
+            baseClasses[schemaToRename] = newName
             
             # if renaming a class that's already been renamed,
             # the key in renameMap should remain as the original class name
@@ -231,16 +236,13 @@ class WrapperGenerator:
             else:
                 renameMap[classToRename] = newName
                 
-            if newName != classToRename:
-                del baseClasses[classToRename]
-            
         def remapBaseClassMenu(baseClasses, schemaNames):
             classToRemapQuestion = [
                 {
                     'type': 'list',
                     'name': 'remap_class',
                     'message': 'Which class would you like to change the mapping for?',
-                    'choices': list(baseClasses.keys()) + [Separator(), 'Cancel']
+                    'choices': list(baseClasses.values()) + [Separator(), 'Cancel']
                 }
             ]
                 
@@ -248,6 +250,11 @@ class WrapperGenerator:
             
             if classToRemap == 'Cancel':
                 return
+            
+            for k,v in baseClasses.items():
+                if v == classToRemap:
+                    schemaToRemap = k
+                    break
                 
             schemaMappingQuestion = [
                 {
@@ -260,7 +267,8 @@ class WrapperGenerator:
                 
             schema = prompt(schemaMappingQuestion)['schema_mapping']
                 
-            baseClasses[classToRemap] = schema
+            baseClasses[schema] = classToRemap
+            del baseClasses[schemaToRemap]
             
         def deleteBaseClassMenu(baseClasses):
             baseClassChoice = [
@@ -268,7 +276,7 @@ class WrapperGenerator:
                     'type': 'list',
                     'name': 'delete_class',
                     'message': 'Which class would you like to delete?',
-                    'choices': list(baseClasses.keys()) + [Separator(), 'Cancel']
+                    'choices': list(baseClasses.values()) + [Separator(), 'Cancel']
                 }
             ]
             
@@ -277,7 +285,9 @@ class WrapperGenerator:
             if classToDelete == 'Cancel':
                 return
             
-            del baseClasses[classToDelete]
+            for k,v in baseClasses.items():
+                if v == classToDelete:
+                    del baseClasses[k]
             
         def showNestedClasses(nestedClasses):
             print('---------------------------------')

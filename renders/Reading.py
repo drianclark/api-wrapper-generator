@@ -1,8 +1,9 @@
-from Measure import Measure
-
 class Reading:
 
     def __init__(self, dict):
+        from Measure import Measure
+        
+
         for k, v in dict.items():
             setattr(self, "_" + k, v)
 

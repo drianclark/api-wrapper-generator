@@ -30,14 +30,11 @@ class ClassesGenerator:
             for _class,_prop in getObjectsRecursion(schema, schemas[schema]):
                 classProps[makeSingular(_class)].append(_prop)
         
-        pprint(classProps.keys())
-            
         for schema, props in classProps.items():
             
             # BASE CLASS CASE
             try:
                 className = self.classes[schema]
-                print(className)
                 
                 # if there is a nested class of the same name,
                 # include its properties to the base class props
@@ -53,16 +50,12 @@ class ClassesGenerator:
                 if className in self.classes.values():
                     continue
             
-            print(className)    
-                
             objectAttributes = set()
             for prop in props:
-                if schema == "stationsEndpoint-default":
-                    pprint(props)
                 for propName, propInfo in prop.items():
                     # if prop is a nested class, add it to objectAttributes
                     if makeSingular(propName) in list(classProps.keys()):
-                        objectAttributes.add(propName)
+                        objectAttributes.add(makeSingular(propName))
             
             render = template.render(className=className, properties=props, objectAttributes=objectAttributes, packageName=self.directory)
 
