@@ -1,10 +1,16 @@
 import json
 import os
+import inflect
 from collections import defaultdict
 from pprint import pprint
 from jinja2 import Template, Environment, FileSystemLoader
+<<<<<<< HEAD
 from helpers import makeClassName, makeParamName
+=======
+from helpers import makeClassName, makeSingular
+>>>>>>> core-cli
 
+p = inflect.engine()
 class ClassesGenerator:
     def __init__(self, spec, directory='renders'):
         self.spec = spec
@@ -22,6 +28,7 @@ class ClassesGenerator:
         paths = jsonSpec["paths"]
         schemas = jsonSpec["components"]["schemas"]
             
+<<<<<<< HEAD
         # collecting properties of each schema, including nested object properties
         for schema, schemaInfo in schemas.items():
             if "-default" in schema:
@@ -57,6 +64,19 @@ class ClassesGenerator:
         #     except KeyError:
         #         print(f'{schema} not in configuration file. Will name class {className}.')
         #         className = makeClassName(schema)
+=======
+        # collecting the properties for each schema
+        for schema, className in self.classes.items():
+            for _class,_prop in getObjectsRecursion(schema, schemas[schema]):
+                classProps[makeSingular(_class)].append(_prop)
+                
+        for schema, props in classProps.items():
+            try:
+                className = self.classes[schema]
+                
+            except KeyError:
+                className = makeClassName(schema)
+>>>>>>> core-cli
                 
         #     objectAttributes = set()
         #     for prop in props:
@@ -64,7 +84,10 @@ class ClassesGenerator:
         #             if propName in list(classProps.keys()):
         #                 objectAttributes.add(propName)
             
+<<<<<<< HEAD
         #     # print(objectAttributes)
+=======
+>>>>>>> core-cli
                     
         #     render = template.render(className=className, properties=props, objectAttributes=objectAttributes, packageName=self.directory)
 
@@ -74,6 +97,7 @@ class ClassesGenerator:
         #     with open(f'{self.directory}/{className}.py', 'w') as f:
         #         f.write(render)
 
+<<<<<<< HEAD
             # for prop, propData in properties.items():
             #     if "allOf" in propData:
             #         for 
@@ -90,21 +114,17 @@ class ClassesGenerator:
 c = ClassesGenerator("hydrology-oas.json")
 
 
+=======
+>>>>>>> core-cli
 def getObjectsRecursion(key,dictionary):
     for item in dictionary["allOf"]:
         for k,v in item.items():
             if k == "properties":
                 for k1,v1 in v.items():
                     yield (key, {k1:v1})
-                    # print(key)
-                    # print({k1:v1})
-                    # print()
                     # if v1 is an object, get its properties to make a class out of it later
                     if v1.get("allOf") != None:
                         for k2,v2 in getObjectsRecursion(k1, v1):
-                            # print(k2)
-                            # print(v2)
-                            # print()
                             yield (k2,v2)
                 break
                 

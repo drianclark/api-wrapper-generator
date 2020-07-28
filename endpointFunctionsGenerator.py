@@ -4,7 +4,7 @@ import os
 from pprint import pprint
 from jinja2 import Template, Environment, FileSystemLoader
 from prance import ResolvingParser
-from helpers import dotToCamel, kebabToCamel, makeFunctionName, makeParamName
+from helpers import dotToCamel, kebabToCamel, makeFunctionName, makeParamName, makeClassName
 
 class EndpointFunctionsGenerator:
     # apiSpec is a json file
@@ -14,8 +14,13 @@ class EndpointFunctionsGenerator:
         self.directory = directory
         self.API_URL = "https://environment.data.gov.uk"
         
+<<<<<<< HEAD
         # with open(config) as f:
         #     self.mappings = json.load(f)["mappings"]
+=======
+        with open(config) as f:
+            self.mappings = json.load(f)["returnTypes"]
+>>>>>>> core-cli
         
         with open(self.apiSpec) as f:
             specs = jsonref.load(f)
@@ -23,13 +28,26 @@ class EndpointFunctionsGenerator:
             self.serverURL = self.API_URL + specs["servers"][0]["url"]
             
         self.endpoints = {}
-                        
+            
         for endpoint, endpointInfo in paths.items():
             # collecting all distinct endpoints, ignoring the _view params
             if "?_view" not in endpoint:
+                noLeadingSlash = endpoint[1:]
+                    
+                # this contains all the strings between slashes
+                splitBySlash = noLeadingSlash.split("/")
+                urlParams = [makeClassName(s[1:-1]) for s in splitBySlash if '{' in s]
+                nonParams = [s for s in splitBySlash if '{' not in s]
+                    
+                functionName = nonParams[-1]
+                    
+                if len(urlParams) > 0:
+                    functionName += 'By'
+                    functionName += 'And'.join(urlParams)
+                        
                 self.endpoints[endpoint] = {}
                 self.endpoints[endpoint]["paths"] = [endpoint]
-                self.endpoints[endpoint]["name"] = makeFunctionName(endpointInfo["description"])
+                self.endpoints[endpoint]["name"] = functionName
                 
                 parameters = endpointInfo["parameters"]
                 parameters += endpointInfo["get"]["parameters"]
@@ -80,7 +98,7 @@ class EndpointFunctionsGenerator:
             requiredParamsField = [p[1] for p in requiredParams]
             optionalParamsField = [p[1] + "=None" for p in optionalParams]
             paramsField = ',\n'.join(requiredParamsField + optionalParamsField)
-            returnType = self.mappings[endpoint] 
+            returnType = self.mappings[endpoint]
             
             render = template.render(name=name,
                                      paramsField=paramsField, 
@@ -90,11 +108,6 @@ class EndpointFunctionsGenerator:
             
             return render
                 
-        # generateEndpointFunction(self.endpoints["/data/readings"]["name"],
-        #                          self.endpoints["/data/readings"]["requiredParameters"],
-        #                          self.endpoints["/data/readings"]["optionalParameters"],
-        #                          "https://environment.data.gov.uk/hydrology/data/readings")
-        
         functionStrings = []
         
         for endpoint, endpointInfo in self.endpoints.items():
@@ -107,8 +120,9 @@ class EndpointFunctionsGenerator:
         
         env = Environment(loader=FileSystemLoader('templates'))
         template = env.get_template('endpointFunctionsTemplate.txt')
+        mappings = set([c for c in self.mappings.values() if '[' not in c])
         
-        endpointFunctions = template.render(functionStrings=functionStrings)    
+        endpointFunctions = template.render(functionStrings=functionStrings, packageName=self.directory, mappings=mappings)    
         
         if not os.path.exists(self.directory):
             os.makedirs(self.directory)     
