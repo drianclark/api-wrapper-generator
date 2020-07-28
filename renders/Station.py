@@ -1,5 +1,6 @@
 from Status import Status
 from SampleOf import SampleOf
+from Measures import Measures
 
 class Station:
 
@@ -19,6 +20,9 @@ class Station:
         
         if "sampleOf" in keys:
             self._sampleOf = SampleOf(dict["sampleOf"])
+        
+        if "measures" in keys:
+            self._measures = Measures(dict["measures"])
         
     def type(self):
         try:
@@ -212,6 +216,42 @@ class Station:
     def sampleOf(self):
         try:
             value = self._sampleOf
+        except AttributeError:
+            value = None
+
+        return value
+        
+        
+    def label(self):
+        try:
+            value = self._label
+        except AttributeError:
+            value = None
+
+        return value
+        
+        
+    def wiskiID(self):
+        try:
+            value = self._wiskiID
+        except AttributeError:
+            value = None
+
+        return value
+        
+        
+    def stationReference(self):
+        try:
+            value = self._stationReference
+        except AttributeError:
+            value = None
+
+        return value
+        
+        
+    def RLOIid(self):
+        try:
+            value = self._RLOIid
         except AttributeError:
             value = None
 
