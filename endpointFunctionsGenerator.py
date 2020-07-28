@@ -8,19 +8,14 @@ from helpers import dotToCamel, kebabToCamel, makeFunctionName, makeParamName, m
 
 class EndpointFunctionsGenerator:
     # apiSpec is a json file
-    def __init__(self, apiSpec, outFile, directory='renders'):
+    def __init__(self, config, apiSpec, outFile, directory='renders'):
         self.apiSpec = apiSpec
         self.outFile = outFile
         self.directory = directory
         self.API_URL = "https://environment.data.gov.uk"
         
-<<<<<<< HEAD
-        # with open(config) as f:
-        #     self.mappings = json.load(f)["mappings"]
-=======
         with open(config) as f:
             self.mappings = json.load(f)["returnTypes"]
->>>>>>> core-cli
         
         with open(self.apiSpec) as f:
             specs = jsonref.load(f)
@@ -56,21 +51,6 @@ class EndpointFunctionsGenerator:
                 self.endpoints[endpoint]["optionalParameters"] = set()
                 required = self.endpoints[endpoint]["requiredParameters"]
                 optional = self.endpoints[endpoint]["optionalParameters"]
-                
-                # constructing endpoint function name
-                noLeadingSlash = endpoint[1:]
-                splitBySlash = noLeadingSlash.split("/")
-                
-                urlParams = [makeClassName(s[1:-1]) for s in splitBySlash if '{' in s]
-                nonParams = [s for s in splitBySlash if '{' not in s]
-                
-                self.endpoints[endpoint]["functionName"] = nonParams[-1]
-                
-                if len(urlParams) > 0:
-                    self.endpoints[endpoint]["functionName"] += 'By'
-                    self.endpoints[endpoint]["functionName"] += 'And'.join(urlParams)
-                    
-                print(self.endpoints[endpoint]["functionName"])
                                 
                 # collecting required and optional parameters as tuples
                 #    (api parameter name, camelised parameter name)
@@ -130,4 +110,3 @@ class EndpointFunctionsGenerator:
         with open(f'{self.directory}/{self.outFile}', 'w') as f:
             f.write(endpointFunctions)   
         
-e = EndpointFunctionsGenerator()

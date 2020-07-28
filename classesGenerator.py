@@ -4,17 +4,17 @@ import inflect
 from collections import defaultdict
 from pprint import pprint
 from jinja2 import Template, Environment, FileSystemLoader
-<<<<<<< HEAD
-from helpers import makeClassName, makeParamName
-=======
 from helpers import makeClassName, makeSingular
->>>>>>> core-cli
 
 p = inflect.engine()
 class ClassesGenerator:
-    def __init__(self, spec, directory='renders'):
+    def __init__(self, config, spec, directory='renders'):
         self.spec = spec
         self.directory = directory
+        
+        with open(config) as f:
+            self.classes = json.load(f)["classes"]
+            # print(self.classes)
                 
     def generateClasses(self):
         env = Environment(loader=FileSystemLoader('templates'))
@@ -23,48 +23,8 @@ class ClassesGenerator:
         classProps = defaultdict(list)
         
         with open(self.spec) as f:
-            jsonSpec = json.load(f)
+            schemas = json.load(f)["components"]["schemas"]
             
-        paths = jsonSpec["paths"]
-        schemas = jsonSpec["components"]["schemas"]
-            
-<<<<<<< HEAD
-        # collecting properties of each schema, including nested object properties
-        for schema, schemaInfo in schemas.items():
-            if "-default" in schema:
-                for _class,_prop in getObjectsRecursion(schema, schemaInfo):
-                    classProps[_class].append(_prop)
-                
-        
-        # collect and construct class names using endpoint paths
-        for pathName, info in paths.items():
-            if "?_view" not in pathName:
-                noLeadingSlash = pathName[1:]
-                
-                # this contains all the strings between slashes
-                splitBySlash = noLeadingSlash.split("/")
-                urlParams = [makeClassName(s[1:-1]) for s in splitBySlash if '{' in s]
-                nonParams = [s for s in splitBySlash if '{' not in s]
-                
-                returnType = info["get"]["responses"]["200"]["content"]["application/json"]["schema"]["properties"]["items"]["type"]
-                returnObjectType = info["get"]["responses"]["200"]["content"]["application/json"]["schema"]["properties"]["items"]["items"]["$ref"].split("/")[-1]
-                
-                className = nonParams[-1]
-                
-                if len(urlParams) > 0:
-                    className += 'By'
-                    className += 'And'.join(urlParams)
-                    
-                print(className)
-                
-        # for schema, props in classProps.items():
-        #     try:
-        #         className = 6c  self.classes[schema]
-                
-        #     except KeyError:
-        #         print(f'{schema} not in configuration file. Will name class {className}.')
-        #         className = makeClassName(schema)
-=======
         # collecting the properties for each schema
         for schema, className in self.classes.items():
             for _class,_prop in getObjectsRecursion(schema, schemas[schema]):
@@ -76,46 +36,22 @@ class ClassesGenerator:
                 
             except KeyError:
                 className = makeClassName(schema)
->>>>>>> core-cli
                 
-        #     objectAttributes = set()
-        #     for prop in props:
-        #         for propName, propInfo in prop.items():
-        #             if propName in list(classProps.keys()):
-        #                 objectAttributes.add(propName)
+            objectAttributes = set()
+            for prop in props:
+                for propName, propInfo in prop.items():
+                    if propName in list(classProps.keys()):
+                        objectAttributes.add(propName)
             
-<<<<<<< HEAD
-        #     # print(objectAttributes)
-=======
->>>>>>> core-cli
                     
-        #     render = template.render(className=className, properties=props, objectAttributes=objectAttributes, packageName=self.directory)
+            render = template.render(className=className, properties=props, objectAttributes=objectAttributes, packageName=self.directory)
 
-        #     if not os.path.exists(self.directory):
-        #         os.makedirs(self.directory)
+            if not os.path.exists(self.directory):
+                os.makedirs(self.directory)
             
-        #     with open(f'{self.directory}/{className}.py', 'w') as f:
-        #         f.write(render)
+            with open(f'{self.directory}/{className}.py', 'w') as f:
+                f.write(render)
 
-<<<<<<< HEAD
-            # for prop, propData in properties.items():
-            #     if "allOf" in propData:
-            #         for 
-            #for property in properties
-                # recursively check
-                    # if it has "allOf"
-                    # then see if type is object
-                    #   then create a class for object
-                    #   make sure to add the correct class constructor calls in the 
-                    #   class containing the object
-                    #   as well as add the import statements
-            
-
-c = ClassesGenerator("hydrology-oas.json")
-
-
-=======
->>>>>>> core-cli
 def getObjectsRecursion(key,dictionary):
     for item in dictionary["allOf"]:
         for k,v in item.items():
