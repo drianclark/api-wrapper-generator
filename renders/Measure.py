@@ -1,8 +1,8 @@
-from ObservedProperty import ObservedProperty
-from ObservationType import ObservationType
 from ValueStatistic import ValueStatistic
+from ObservationType import ObservationType
+from ObservedProperty import ObservedProperty
 
-class Measures:
+class Measure:
 
     def __init__(self, dict):
         for k, v in dict.items():
@@ -15,14 +15,14 @@ class Measures:
         except:
             pass
         
-        if "observedProperty" in keys:
-            self._observedProperty = ObservedProperty(dict["observedProperty"])
+        if "valueStatistic" in keys:
+            self._valueStatistic = ValueStatistic(dict["valueStatistic"])
         
         if "observationType" in keys:
             self._observationType = ObservationType(dict["observationType"])
         
-        if "valueStatistic" in keys:
-            self._valueStatistic = ValueStatistic(dict["valueStatistic"])
+        if "observedProperty" in keys:
+            self._observedProperty = ObservedProperty(dict["observedProperty"])
         
     def label(self):
         try:

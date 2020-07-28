@@ -1,62 +1,50 @@
 import requests
-from Stations import Stations
-from Measures import Measures
-from Readings import Readings
+from Station import Station
+from Reading import Reading
+from Measure import Measure
 
 class Renders:
 
     def readings(
     self, 
-    date=None,
-    projection=None,
-    latest=None,
-    period=None,
-    completeness=None,
-    stationStationReference=None,
-    observedProperty=None,
+    sort=None,
+    maxDate=None,
+    station=None,
     observationType=None,
     measure=None,
-    station=None,
-    value=None,
-    maxeqDate=None,
     earliest=None,
-    stationRLOIid=None,
+    date=None,
     quality=None,
-    minDate=None,
+    stationRLOIid=None,
+    offset=None,
     qcode=None,
     view=None,
-    maxDate=None,
-    sort=None,
+    stationStationReference=None,
+    latest=None,
     dateTime=None,
-    offset=None,
-    mineqDate=None,
+    completeness=None,
+    period=None,
+    maxeqDate=None,
+    minDate=None,
     stationWiskiID=None,
-    limit=None
+    projection=None,
+    observedProperty=None,
+    limit=None,
+    mineqDate=None,
+    value=None
     ):
 
         params = {}
         params['_limit'] = 5
         
-        if date != None:
-            params['date'] = date
+        if sort != None:
+            params['_sort'] = sort
 
-        if projection != None:
-            params['_projection'] = projection
+        if maxDate != None:
+            params['max-date'] = maxDate
 
-        if latest != None:
-            params['latest'] = latest
-
-        if period != None:
-            params['period'] = period
-
-        if completeness != None:
-            params['completeness'] = completeness
-
-        if stationStationReference != None:
-            params['station.stationReference'] = stationStationReference
-
-        if observedProperty != None:
-            params['observedProperty'] = observedProperty
+        if station != None:
+            params['station'] = station
 
         if observationType != None:
             params['observationType'] = observationType
@@ -64,26 +52,20 @@ class Renders:
         if measure != None:
             params['measure'] = measure
 
-        if station != None:
-            params['station'] = station
-
-        if value != None:
-            params['value'] = value
-
-        if maxeqDate != None:
-            params['maxeq-date'] = maxeqDate
-
         if earliest != None:
             params['earliest'] = earliest
 
-        if stationRLOIid != None:
-            params['station.RLOIid'] = stationRLOIid
+        if date != None:
+            params['date'] = date
 
         if quality != None:
             params['quality'] = quality
 
-        if minDate != None:
-            params['min-date'] = minDate
+        if stationRLOIid != None:
+            params['station.RLOIid'] = stationRLOIid
+
+        if offset != None:
+            params['_offset'] = offset
 
         if qcode != None:
             params['qcode'] = qcode
@@ -91,26 +73,44 @@ class Renders:
         if view != None:
             params['view'] = view
 
-        if maxDate != None:
-            params['max-date'] = maxDate
+        if stationStationReference != None:
+            params['station.stationReference'] = stationStationReference
 
-        if sort != None:
-            params['_sort'] = sort
+        if latest != None:
+            params['latest'] = latest
 
         if dateTime != None:
             params['dateTime'] = dateTime
 
-        if offset != None:
-            params['_offset'] = offset
+        if completeness != None:
+            params['completeness'] = completeness
 
-        if mineqDate != None:
-            params['mineq-date'] = mineqDate
+        if period != None:
+            params['period'] = period
+
+        if maxeqDate != None:
+            params['maxeq-date'] = maxeqDate
+
+        if minDate != None:
+            params['min-date'] = minDate
 
         if stationWiskiID != None:
             params['station.wiskiID'] = stationWiskiID
 
+        if projection != None:
+            params['_projection'] = projection
+
+        if observedProperty != None:
+            params['observedProperty'] = observedProperty
+
         if limit != None:
             params['_limit'] = limit
+
+        if mineqDate != None:
+            params['mineq-date'] = mineqDate
+
+        if value != None:
+            params['value'] = value
 
 
         try:
@@ -121,110 +121,110 @@ class Renders:
             raise ValueError("Request failed")
 
         items = r.json()["items"]
-        data = [Readings(item) for item in items]
+        data = [Reading(item) for item in items]
         
 
         return data
 
     def measures(
     self, 
-    label=None,
     stationLabel=None,
-    projection=None,
-    qualifier=None,
-    period=None,
-    valueStatisticLabel=None,
-    observedPropertyLabel=None,
-    unitName=None,
-    observedProperty=None,
-    observationTypeLabel=None,
-    stationStationReference=None,
-    observationType=None,
-    parameterName=None,
-    station=None,
-    unit=None,
-    stationRLOIid=None,
-    valueStatistic=None,
-    parameter=None,
     sort=None,
+    qualifier=None,
+    station=None,
+    observationType=None,
+    observationTypeLabel=None,
+    observedPropertyLabel=None,
+    stationRLOIid=None,
+    label=None,
     offset=None,
+    valueStatistic=None,
+    unit=None,
+    stationStationReference=None,
     datumType=None,
+    period=None,
+    unitName=None,
+    valueStatisticLabel=None,
+    parameterName=None,
     stationWiskiID=None,
+    projection=None,
+    observedProperty=None,
     limit=None,
+    parameter=None,
     notation=None
     ):
 
         params = {}
         params['_limit'] = 5
         
-        if label != None:
-            params['label'] = label
-
         if stationLabel != None:
             params['station.label'] = stationLabel
-
-        if projection != None:
-            params['_projection'] = projection
-
-        if qualifier != None:
-            params['qualifier'] = qualifier
-
-        if period != None:
-            params['period'] = period
-
-        if valueStatisticLabel != None:
-            params['valueStatistic.label'] = valueStatisticLabel
-
-        if observedPropertyLabel != None:
-            params['observedProperty.label'] = observedPropertyLabel
-
-        if unitName != None:
-            params['unitName'] = unitName
-
-        if observedProperty != None:
-            params['observedProperty'] = observedProperty
-
-        if observationTypeLabel != None:
-            params['observationType.label'] = observationTypeLabel
-
-        if stationStationReference != None:
-            params['station.stationReference'] = stationStationReference
-
-        if observationType != None:
-            params['observationType'] = observationType
-
-        if parameterName != None:
-            params['parameterName'] = parameterName
-
-        if station != None:
-            params['station'] = station
-
-        if unit != None:
-            params['unit'] = unit
-
-        if stationRLOIid != None:
-            params['station.RLOIid'] = stationRLOIid
-
-        if valueStatistic != None:
-            params['valueStatistic'] = valueStatistic
-
-        if parameter != None:
-            params['parameter'] = parameter
 
         if sort != None:
             params['_sort'] = sort
 
+        if qualifier != None:
+            params['qualifier'] = qualifier
+
+        if station != None:
+            params['station'] = station
+
+        if observationType != None:
+            params['observationType'] = observationType
+
+        if observationTypeLabel != None:
+            params['observationType.label'] = observationTypeLabel
+
+        if observedPropertyLabel != None:
+            params['observedProperty.label'] = observedPropertyLabel
+
+        if stationRLOIid != None:
+            params['station.RLOIid'] = stationRLOIid
+
+        if label != None:
+            params['label'] = label
+
         if offset != None:
             params['_offset'] = offset
+
+        if valueStatistic != None:
+            params['valueStatistic'] = valueStatistic
+
+        if unit != None:
+            params['unit'] = unit
+
+        if stationStationReference != None:
+            params['station.stationReference'] = stationStationReference
 
         if datumType != None:
             params['datumType'] = datumType
 
+        if period != None:
+            params['period'] = period
+
+        if unitName != None:
+            params['unitName'] = unitName
+
+        if valueStatisticLabel != None:
+            params['valueStatistic.label'] = valueStatisticLabel
+
+        if parameterName != None:
+            params['parameterName'] = parameterName
+
         if stationWiskiID != None:
             params['station.wiskiID'] = stationWiskiID
 
+        if projection != None:
+            params['_projection'] = projection
+
+        if observedProperty != None:
+            params['observedProperty'] = observedProperty
+
         if limit != None:
             params['_limit'] = limit
+
+        if parameter != None:
+            params['parameter'] = parameter
 
         if notation != None:
             params['notation'] = notation
@@ -238,24 +238,24 @@ class Renders:
             raise ValueError("Request failed")
 
         items = r.json()["items"]
-        data = [Measures(item) for item in items]
+        data = [Measure(item) for item in items]
         
 
         return data
 
     def measuresById(
     self, 
-    projection=None,
-    id=None
+    id=None,
+    projection=None
     ):
 
         params = {}
         
-        if projection != None:
-            params['_projection'] = projection
-
         if id != None:
             params['id'] = id
+
+        if projection != None:
+            params['_projection'] = projection
 
 
         try:
@@ -266,56 +266,56 @@ class Renders:
             raise ValueError("Request failed")
 
         items = r.json()["items"]
-        data = Measures(items[0])
+        data = Measure(items[0])
         
 
         return data
 
     def readingsByMeasure(
     self, 
-    maxDate=None,
+    earliest=None,
     date=None,
-    projection=None,
-    latest=None,
-    measure=None,
-    minDate=None,
-    mineqDate=None,
-    view=None,
     maxeqDate=None,
-    earliest=None
+    mineqDate=None,
+    minDate=None,
+    view=None,
+    projection=None,
+    maxDate=None,
+    latest=None,
+    measure=None
     ):
 
         params = {}
         
-        if maxDate != None:
-            params['max-date'] = maxDate
+        if earliest != None:
+            params['earliest'] = earliest
 
         if date != None:
             params['date'] = date
 
+        if maxeqDate != None:
+            params['maxeq-date'] = maxeqDate
+
+        if mineqDate != None:
+            params['mineq-date'] = mineqDate
+
+        if minDate != None:
+            params['min-date'] = minDate
+
+        if view != None:
+            params['view'] = view
+
         if projection != None:
             params['_projection'] = projection
+
+        if maxDate != None:
+            params['max-date'] = maxDate
 
         if latest != None:
             params['latest'] = latest
 
         if measure != None:
             params['measure'] = measure
-
-        if minDate != None:
-            params['min-date'] = minDate
-
-        if mineqDate != None:
-            params['mineq-date'] = mineqDate
-
-        if view != None:
-            params['view'] = view
-
-        if maxeqDate != None:
-            params['maxeq-date'] = maxeqDate
-
-        if earliest != None:
-            params['earliest'] = earliest
 
 
         try:
@@ -326,122 +326,125 @@ class Renders:
             raise ValueError("Request failed")
 
         items = r.json()["items"]
-        data = Readings(items[0])
+        data = Reading(items[0])
         
 
         return data
 
     def stations(
     self, 
-    catchmentName=None,
-    label=None,
-    projection=None,
-    status=None,
-    statusLabel=None,
-    dist=None,
-    sampleOfLabel=None,
-    boreholeDepth=None,
-    measuresObservationType=None,
-    easting=None,
-    northing=None,
-    measuresLabel=None,
+    measuresNotation=None,
+    measuresObservedProperty=None,
+    measuresObservedPropertyLabel=None,
     nrfaStationURL=None,
-    search=None,
-    measuresPeriod=None,
-    observedProperty=None,
+    measuresQualifier=None,
+    boreholeDepth=None,
     measures=None,
-    dateOpened=None,
+    measuresPeriod=None,
+    sort=None,
+    nrfaStationID=None,
+    status=None,
+    riverName=None,
+    RLOIid=None,
+    northing=None,
+    sampleOfLabel=None,
+    measuresLabel=None,
+    measuresUnitName=None,
+    statusLabel=None,
     datum=None,
-    town=None,
-    notation=None,
+    measuresObservationType=None,
+    stationReference=None,
+    measuresValueStatisticLabel=None,
     measuresValueStatistic=None,
     wiskiID=None,
-    lat=None,
-    RLOIid=None,
-    sampleOf=None,
-    nrfaStationID=None,
-    measuresQualifier=None,
-    aquifer=None,
-    measuresValueStatisticLabel=None,
-    measuresObservationTypeLabel=None,
-    type=None,
-    long=None,
-    measuresObservedProperty=None,
-    stationReference=None,
-    sort=None,
+    label=None,
+    search=None,
     offset=None,
-    riverName=None,
-    measuresUnitName=None,
-    measuresNotation=None,
+    long=None,
+    town=None,
+    easting=None,
+    lat=None,
+    dist=None,
+    aquifer=None,
+    dateOpened=None,
+    projection=None,
+    observedProperty=None,
+    measuresObservationTypeLabel=None,
     limit=None,
-    measuresObservedPropertyLabel=None
+    catchmentName=None,
+    sampleOf=None,
+    notation=None,
+    type=None
     ):
 
         params = {}
         params['_limit'] = 5
         
-        if catchmentName != None:
-            params['catchmentName'] = catchmentName
+        if measuresNotation != None:
+            params['measures.notation'] = measuresNotation
 
-        if label != None:
-            params['label'] = label
+        if measuresObservedProperty != None:
+            params['measures.observedProperty'] = measuresObservedProperty
 
-        if projection != None:
-            params['_projection'] = projection
-
-        if status != None:
-            params['status'] = status
-
-        if statusLabel != None:
-            params['status.label'] = statusLabel
-
-        if dist != None:
-            params['dist'] = dist
-
-        if sampleOfLabel != None:
-            params['sampleOf.label'] = sampleOfLabel
-
-        if boreholeDepth != None:
-            params['boreholeDepth'] = boreholeDepth
-
-        if measuresObservationType != None:
-            params['measures.observationType'] = measuresObservationType
-
-        if easting != None:
-            params['easting'] = easting
-
-        if northing != None:
-            params['northing'] = northing
-
-        if measuresLabel != None:
-            params['measures.label'] = measuresLabel
+        if measuresObservedPropertyLabel != None:
+            params['measures.observedProperty.label'] = measuresObservedPropertyLabel
 
         if nrfaStationURL != None:
             params['nrfaStationURL'] = nrfaStationURL
 
-        if search != None:
-            params['search'] = search
+        if measuresQualifier != None:
+            params['measures.qualifier'] = measuresQualifier
 
-        if measuresPeriod != None:
-            params['measures.period'] = measuresPeriod
-
-        if observedProperty != None:
-            params['observedProperty'] = observedProperty
+        if boreholeDepth != None:
+            params['boreholeDepth'] = boreholeDepth
 
         if measures != None:
             params['measures'] = measures
 
-        if dateOpened != None:
-            params['dateOpened'] = dateOpened
+        if measuresPeriod != None:
+            params['measures.period'] = measuresPeriod
+
+        if sort != None:
+            params['_sort'] = sort
+
+        if nrfaStationID != None:
+            params['nrfaStationID'] = nrfaStationID
+
+        if status != None:
+            params['status'] = status
+
+        if riverName != None:
+            params['riverName'] = riverName
+
+        if RLOIid != None:
+            params['RLOIid'] = RLOIid
+
+        if northing != None:
+            params['northing'] = northing
+
+        if sampleOfLabel != None:
+            params['sampleOf.label'] = sampleOfLabel
+
+        if measuresLabel != None:
+            params['measures.label'] = measuresLabel
+
+        if measuresUnitName != None:
+            params['measures.unitName'] = measuresUnitName
+
+        if statusLabel != None:
+            params['status.label'] = statusLabel
 
         if datum != None:
             params['datum'] = datum
 
-        if town != None:
-            params['town'] = town
+        if measuresObservationType != None:
+            params['measures.observationType'] = measuresObservationType
 
-        if notation != None:
-            params['notation'] = notation
+        if stationReference != None:
+            params['stationReference'] = stationReference
+
+        if measuresValueStatisticLabel != None:
+            params['measures.valueStatistic.label'] = measuresValueStatisticLabel
 
         if measuresValueStatistic != None:
             params['measures.valueStatistic'] = measuresValueStatistic
@@ -449,62 +452,59 @@ class Renders:
         if wiskiID != None:
             params['wiskiID'] = wiskiID
 
-        if lat != None:
-            params['lat'] = lat
+        if label != None:
+            params['label'] = label
 
-        if RLOIid != None:
-            params['RLOIid'] = RLOIid
-
-        if sampleOf != None:
-            params['sampleOf'] = sampleOf
-
-        if nrfaStationID != None:
-            params['nrfaStationID'] = nrfaStationID
-
-        if measuresQualifier != None:
-            params['measures.qualifier'] = measuresQualifier
-
-        if aquifer != None:
-            params['aquifer'] = aquifer
-
-        if measuresValueStatisticLabel != None:
-            params['measures.valueStatistic.label'] = measuresValueStatisticLabel
-
-        if measuresObservationTypeLabel != None:
-            params['measures.observationType.label'] = measuresObservationTypeLabel
-
-        if type != None:
-            params['type'] = type
-
-        if long != None:
-            params['long'] = long
-
-        if measuresObservedProperty != None:
-            params['measures.observedProperty'] = measuresObservedProperty
-
-        if stationReference != None:
-            params['stationReference'] = stationReference
-
-        if sort != None:
-            params['_sort'] = sort
+        if search != None:
+            params['search'] = search
 
         if offset != None:
             params['_offset'] = offset
 
-        if riverName != None:
-            params['riverName'] = riverName
+        if long != None:
+            params['long'] = long
 
-        if measuresUnitName != None:
-            params['measures.unitName'] = measuresUnitName
+        if town != None:
+            params['town'] = town
 
-        if measuresNotation != None:
-            params['measures.notation'] = measuresNotation
+        if easting != None:
+            params['easting'] = easting
+
+        if lat != None:
+            params['lat'] = lat
+
+        if dist != None:
+            params['dist'] = dist
+
+        if aquifer != None:
+            params['aquifer'] = aquifer
+
+        if dateOpened != None:
+            params['dateOpened'] = dateOpened
+
+        if projection != None:
+            params['_projection'] = projection
+
+        if observedProperty != None:
+            params['observedProperty'] = observedProperty
+
+        if measuresObservationTypeLabel != None:
+            params['measures.observationType.label'] = measuresObservationTypeLabel
 
         if limit != None:
             params['_limit'] = limit
 
-        if measuresObservedPropertyLabel != None:
-            params['measures.observedProperty.label'] = measuresObservedPropertyLabel
+        if catchmentName != None:
+            params['catchmentName'] = catchmentName
+
+        if sampleOf != None:
+            params['sampleOf'] = sampleOf
+
+        if notation != None:
+            params['notation'] = notation
+
+        if type != None:
+            params['type'] = type
 
 
         try:
@@ -515,24 +515,24 @@ class Renders:
             raise ValueError("Request failed")
 
         items = r.json()["items"]
-        data = [Stations(item) for item in items]
+        data = [Station(item) for item in items]
         
 
         return data
 
     def stationsById(
     self, 
-    projection=None,
-    id=None
+    id=None,
+    projection=None
     ):
 
         params = {}
         
-        if projection != None:
-            params['_projection'] = projection
-
         if id != None:
             params['id'] = id
+
+        if projection != None:
+            params['_projection'] = projection
 
 
         try:
@@ -543,21 +543,24 @@ class Renders:
             raise ValueError("Request failed")
 
         items = r.json()["items"]
-        data = Stations(items[0])
+        data = Station(items[0])
         
 
         return data
 
     def measuresByStation(
     self, 
+    observedProperty=None,
     observationType=None,
     projection=None,
-    station=None,
-    observedProperty=None
+    station=None
     ):
 
         params = {}
         
+        if observedProperty != None:
+            params['observedProperty'] = observedProperty
+
         if observationType != None:
             params['observationType'] = observationType
 
@@ -566,9 +569,6 @@ class Renders:
 
         if station != None:
             params['station'] = station
-
-        if observedProperty != None:
-            params['observedProperty'] = observedProperty
 
 
         try:
@@ -579,7 +579,7 @@ class Renders:
             raise ValueError("Request failed")
 
         items = r.json()["items"]
-        data = Measures(items[0])
+        data = Measure(items[0])
         
 
         return data

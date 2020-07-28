@@ -1,5 +1,6 @@
+from Measure import Measure
 
-class Readings:
+class Reading:
 
     def __init__(self, dict):
         for k, v in dict.items():
@@ -11,6 +12,9 @@ class Readings:
             self._id = dict["@id"]
         except:
             pass
+        
+        if "measure" in keys:
+            self._measure = Measure(dict["measure"])
         
     def measure(self):
         try:

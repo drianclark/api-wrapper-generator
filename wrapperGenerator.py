@@ -2,7 +2,7 @@ import os
 import json
 from endpointFunctionsGenerator import EndpointFunctionsGenerator
 from classesGenerator import ClassesGenerator
-from helpers import getObjectsRecursion, makeClassName
+from helpers import getObjectsRecursion, makeClassName, makeSingular
 from pprint import pprint
 from PyInquirer import prompt, print_json, Separator
 
@@ -57,11 +57,9 @@ class WrapperGenerator:
                         
                     else:                    
                         self.configSetup()
-                        
-                else:
-                    self.classesGenerator = ClassesGenerator(self.config, self.spec, self.packageName) 
-                    self.functionsGenerator = EndpointFunctionsGenerator(self.config, self.spec, f'{self.packageName}.py', self.packageName)
 
+            self.classesGenerator = ClassesGenerator(self.config, self.spec, self.packageName) 
+            self.functionsGenerator = EndpointFunctionsGenerator(self.config, self.spec, f'{self.packageName}.py', self.packageName)
             runGenerator = self.promptGeneratorRun()
             
             if runGenerator:
@@ -160,7 +158,6 @@ class WrapperGenerator:
             newClassMapping = classMapping if returnType == 'object' else f'[{classMapping}]'
             endpointClassMappings[endpointChoice] = newClassMapping
             
-            print(endpointClassMappings)
             
         def showBaseClasses(baseClasses):
             print('---------------------------------')
@@ -370,27 +367,11 @@ class WrapperGenerator:
         print("Generating config file")
         self.writeConfigurationToFile(baseClasses, endpointClassMappings)
         print(f"Generated config file: {self.config}")
-        
-        self.classesGenerator = ClassesGenerator(self.config, self.spec, self.packageName) 
-        self.functionsGenerator = EndpointFunctionsGenerator(self.config, self.spec, f'{self.packageName}.py', self.packageName)
-        
-        runGenerator = self.promptGeneratorRun()
-        
-        if runGenerator:
-            self.generateWrapper()
             
     def getClassSchemaMappingsFromSpec(self):
         classes = {}
-        
-        # collecting properties of each schema, including nested object properties
-        for schema, schemaInfo in self.schemas.items():
-            if "-default" in schema:
-                for _class,_prop in getObjectsRecursion(schema, schemaInfo):
-                    # only get nested object attributes (they don't have dashes)
-                    if '-' not in _class:
-                        classes[makeClassName(_class)] = _class
                         
-        # collect and construct class names using endpoint paths
+        # collect and construct base class names using endpoint paths
         for pathName, info in self.paths.items():
             if "?_view" not in pathName and '{' not in pathName:
                 noLeadingSlash = pathName[1:]
@@ -402,9 +383,25 @@ class WrapperGenerator:
                             
                 returnObjectType = info["get"]["responses"]["200"]["content"]["application/json"]["schema"]["properties"]["items"]["items"]["$ref"].split("/")[-1]
                 className = makeClassName(nonParams[-1])
+                className = makeSingular(className)
+                print(className)
                 
                 classes[className] = returnObjectType
                 
+        # collecting nested attributes
+        for schema, schemaInfo in self.schemas.items():
+            if "-default" in schema:
+                for _class,_prop in getObjectsRecursion(schema, schemaInfo):
+                    # only get nested object attributes (they don't have dashes)
+                    if '-' not in _class:
+                        className = makeSingular(makeClassName(_class))
+                        
+                        # making sure we don't overwrite base classes
+                        # with nested ones of the same name
+                        if className not in classes:
+                            classes[className] = _class
+                            
+        print(classes)                
         return classes
     
     def getSchemaNameFromSpec(self):
@@ -424,6 +421,7 @@ class WrapperGenerator:
                 noLeadingSlash = pathName[1:]
                 splitBySlash = noLeadingSlash.split("/")
                 className = makeClassName([s for s in splitBySlash if '{' not in s][-1])
+                className = makeSingular(className)
                 
                 # if this class name has been renamed, change it to what it's been renamed as
                 try:
@@ -441,7 +439,7 @@ class WrapperGenerator:
             'classes': baseClasses,
             'returnTypes': endpointClassMappings
         }
-                
+        
         with open(self.config, 'w') as f:
             json.dump(config, f, indent=2)
             
@@ -459,6 +457,7 @@ class WrapperGenerator:
             
         print("Generating classes")
         self.classesGenerator.generateClasses()
+        print(self.classesGenerator.classes)
         print("Generating functions")
         self.functionsGenerator.generateEndpointFunctions()
         print("Wrapper generated!")

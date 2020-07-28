@@ -1,10 +1,12 @@
 import json
 import os
+import inflect
 from collections import defaultdict
 from pprint import pprint
 from jinja2 import Template, Environment, FileSystemLoader
-from helpers import makeClassName
+from helpers import makeClassName, makeSingular
 
+p = inflect.engine()
 class ClassesGenerator:
     def __init__(self, config, spec, directory='renders'):
         self.spec = spec
@@ -23,10 +25,10 @@ class ClassesGenerator:
         with open(self.spec) as f:
             schemas = json.load(f)["components"]["schemas"]
             
+        # collecting the properties for each schema
         for schema, className in self.classes.items():
-        # access the schema in the spec
             for _class,_prop in getObjectsRecursion(schema, schemas[schema]):
-                classProps[_class].append(_prop)
+                classProps[makeSingular(_class)].append(_prop)
                 
         for schema, props in classProps.items():
             try:
