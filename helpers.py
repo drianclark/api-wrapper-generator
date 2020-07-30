@@ -64,3 +64,19 @@ def makeSingular(s):
     singularVersion = p.singular_noun(s) if not singular else s
     
     return singularVersion
+
+def constructEndpointFunctionName(endpointPath):
+    noLeadingSlash = endpointPath[1:]
+                        
+    # this contains all the strings between slashes
+    splitBySlash = noLeadingSlash.split("/")
+    urlParams = [makeClassName(s[1:-1]) for s in splitBySlash if '{' in s]
+    nonParams = [s for s in splitBySlash if '{' not in s]
+                        
+    functionName = nonParams[-1]
+                        
+    if len(urlParams) > 0:
+        functionName += 'By'
+        functionName += 'And'.join(urlParams)
+        
+    return functionName
