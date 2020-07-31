@@ -34,13 +34,18 @@ class TestsGenerator:
             return render
 
         tests = []
+        classes = set()
         for endpoint, returnType in self.endpointMappings.items():
             tests.append(createEndpointFunctionTest(endpoint, returnType))
+            returnType = returnType[1:-1] if '[' in returnType else returnType
+            classes.add(returnType)
             
         env = Environment(loader=FileSystemLoader('templates'))
         template = env.get_template('endpointFunctionTestsTemplate.txt')
             
-        render = template.render(tests=tests)
+        render = template.render(tests=tests,
+                                 classes=classes,
+                                 packageName=self.packageName)
         
         with open(f'test_{self.packageName}.py', 'w') as f:
             f.write(render)

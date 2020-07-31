@@ -1,4 +1,7 @@
 from renders.renders import Renders
+from renders.Station import Station
+from renders.Measure import Measure
+from renders.Reading import Reading
 
 r = Renders()
 
@@ -7,27 +10,27 @@ def testReadings():
     assert all(isinstance(x, Reading) for x in data)
     
 def testMeasures():
-    data = measures()
+    data = r.measures()
     assert all(isinstance(x, Measure) for x in data)
     
 def testMeasuresById():
-    data = measuresById()
+    data = r.measuresById()
     assert isinstance(data, Measure)
     
 def testReadingsByMeasure():
-    data = readingsByMeasure()
+    data = r.readingsByMeasure()
     assert isinstance(data, Reading)
     
 def testStations():
-    data = stations()
+    data = r.stations()
     assert all(isinstance(x, Station) for x in data)
     
 def testStationsById():
-    data = stationsById()
+    data = r.stationsById()
     assert isinstance(data, Station)
     
 def testMeasuresByStation():
-    data = measuresByStation()
+    data = r.measuresByStation()
     assert isinstance(data, Measure)
     
  

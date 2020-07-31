@@ -5,7 +5,7 @@ class {{ className }}:
 
     def __init__(self, dict):
         {% for objectAttribute in objectAttributes -%}
-        from {{ pascalCase(objectAttribute) }} import {{ pascalCase(objectAttribute) }}
+        from {{packageName}}.{{ pascalCase(objectAttribute) }} import {{ pascalCase(objectAttribute) }}
         {% endfor %}
 
         for k, v in dict.items():
