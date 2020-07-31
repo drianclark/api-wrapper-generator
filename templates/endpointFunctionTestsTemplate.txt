@@ -1,0 +1,9 @@
+{% macro pascalCase(s) -%}
+    {{ s[0]|upper}}{{s[1:] -}}
+{% endmacro -%}
+from {{ packageName }} import {{ packageName }}
+r = {{ pascalCase(packageName) }}
+
+{% for test in tests -%}
+{{ test }}
+{% endfor %} 

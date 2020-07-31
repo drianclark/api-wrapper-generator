@@ -1,35 +1,35 @@
 import requests
-from Station import Station
-from Measure import Measure
-from Reading import Reading
+from renders.Station import Station
+from renders.Measure import Measure
+from renders.Reading import Reading
 
 class Renders:
 
     def readings(
     self, 
-    minDate=None,
-    limit=None,
-    stationRLOIid=None,
-    completeness=None,
-    offset=None,
-    earliest=None,
-    measure=None,
-    observationType=None,
-    maxeqDate=None,
-    projection=None,
-    period=None,
     quality=None,
-    observedProperty=None,
-    dateTime=None,
-    date=None,
+    stationRLOIid=None,
+    sort=None,
+    stationStationReference=None,
+    period=None,
+    view=None,
+    measure=None,
+    minDate=None,
     stationWiskiID=None,
     maxDate=None,
-    stationStationReference=None,
+    completeness=None,
+    maxeqDate=None,
+    observationType=None,
+    projection=None,
     qcode=None,
+    offset=None,
+    observedProperty=None,
+    dateTime=None,
+    limit=None,
     station=None,
+    earliest=None,
+    date=None,
     latest=None,
-    sort=None,
-    view=None,
     mineqDate=None,
     value=None
     ):
@@ -37,50 +37,29 @@ class Renders:
         params = {}
         params['_limit'] = 5
         
-        if minDate != None:
-            params['min-date'] = minDate
-
-        if limit != None:
-            params['_limit'] = limit
+        if quality != None:
+            params['quality'] = quality
 
         if stationRLOIid != None:
             params['station.RLOIid'] = stationRLOIid
 
-        if completeness != None:
-            params['completeness'] = completeness
+        if sort != None:
+            params['_sort'] = sort
 
-        if offset != None:
-            params['_offset'] = offset
-
-        if earliest != None:
-            params['earliest'] = earliest
-
-        if measure != None:
-            params['measure'] = measure
-
-        if observationType != None:
-            params['observationType'] = observationType
-
-        if maxeqDate != None:
-            params['maxeq-date'] = maxeqDate
-
-        if projection != None:
-            params['_projection'] = projection
+        if stationStationReference != None:
+            params['station.stationReference'] = stationStationReference
 
         if period != None:
             params['period'] = period
 
-        if quality != None:
-            params['quality'] = quality
+        if view != None:
+            params['view'] = view
 
-        if observedProperty != None:
-            params['observedProperty'] = observedProperty
+        if measure != None:
+            params['measure'] = measure
 
-        if dateTime != None:
-            params['dateTime'] = dateTime
-
-        if date != None:
-            params['date'] = date
+        if minDate != None:
+            params['min-date'] = minDate
 
         if stationWiskiID != None:
             params['station.wiskiID'] = stationWiskiID
@@ -88,23 +67,44 @@ class Renders:
         if maxDate != None:
             params['max-date'] = maxDate
 
-        if stationStationReference != None:
-            params['station.stationReference'] = stationStationReference
+        if completeness != None:
+            params['completeness'] = completeness
+
+        if maxeqDate != None:
+            params['maxeq-date'] = maxeqDate
+
+        if observationType != None:
+            params['observationType'] = observationType
+
+        if projection != None:
+            params['_projection'] = projection
 
         if qcode != None:
             params['qcode'] = qcode
 
+        if offset != None:
+            params['_offset'] = offset
+
+        if observedProperty != None:
+            params['observedProperty'] = observedProperty
+
+        if dateTime != None:
+            params['dateTime'] = dateTime
+
+        if limit != None:
+            params['_limit'] = limit
+
         if station != None:
             params['station'] = station
 
+        if earliest != None:
+            params['earliest'] = earliest
+
+        if date != None:
+            params['date'] = date
+
         if latest != None:
             params['latest'] = latest
-
-        if sort != None:
-            params['_sort'] = sort
-
-        if view != None:
-            params['view'] = view
 
         if mineqDate != None:
             params['mineq-date'] = mineqDate
@@ -128,40 +128,37 @@ class Renders:
 
     def measures(
     self, 
-    parameterName=None,
-    limit=None,
+    stationLabel=None,
     valueStatistic=None,
     stationRLOIid=None,
-    offset=None,
-    valueStatisticLabel=None,
-    stationLabel=None,
-    observationType=None,
-    projection=None,
-    unitName=None,
-    observedPropertyLabel=None,
-    period=None,
-    label=None,
-    observedProperty=None,
     parameter=None,
-    unit=None,
-    stationWiskiID=None,
+    sort=None,
     datumType=None,
     stationStationReference=None,
-    station=None,
-    sort=None,
-    notation=None,
+    period=None,
+    observationTypeLabel=None,
     qualifier=None,
-    observationTypeLabel=None
+    label=None,
+    stationWiskiID=None,
+    observedPropertyLabel=None,
+    observationType=None,
+    projection=None,
+    offset=None,
+    parameterName=None,
+    unit=None,
+    observedProperty=None,
+    unitName=None,
+    limit=None,
+    station=None,
+    valueStatisticLabel=None,
+    notation=None
     ):
 
         params = {}
         params['_limit'] = 5
         
-        if parameterName != None:
-            params['parameterName'] = parameterName
-
-        if limit != None:
-            params['_limit'] = limit
+        if stationLabel != None:
+            params['station.label'] = stationLabel
 
         if valueStatistic != None:
             params['valueStatistic'] = valueStatistic
@@ -169,44 +166,11 @@ class Renders:
         if stationRLOIid != None:
             params['station.RLOIid'] = stationRLOIid
 
-        if offset != None:
-            params['_offset'] = offset
-
-        if valueStatisticLabel != None:
-            params['valueStatistic.label'] = valueStatisticLabel
-
-        if stationLabel != None:
-            params['station.label'] = stationLabel
-
-        if observationType != None:
-            params['observationType'] = observationType
-
-        if projection != None:
-            params['_projection'] = projection
-
-        if unitName != None:
-            params['unitName'] = unitName
-
-        if observedPropertyLabel != None:
-            params['observedProperty.label'] = observedPropertyLabel
-
-        if period != None:
-            params['period'] = period
-
-        if label != None:
-            params['label'] = label
-
-        if observedProperty != None:
-            params['observedProperty'] = observedProperty
-
         if parameter != None:
             params['parameter'] = parameter
 
-        if unit != None:
-            params['unit'] = unit
-
-        if stationWiskiID != None:
-            params['station.wiskiID'] = stationWiskiID
+        if sort != None:
+            params['_sort'] = sort
 
         if datumType != None:
             params['datumType'] = datumType
@@ -214,20 +178,56 @@ class Renders:
         if stationStationReference != None:
             params['station.stationReference'] = stationStationReference
 
-        if station != None:
-            params['station'] = station
+        if period != None:
+            params['period'] = period
 
-        if sort != None:
-            params['_sort'] = sort
-
-        if notation != None:
-            params['notation'] = notation
+        if observationTypeLabel != None:
+            params['observationType.label'] = observationTypeLabel
 
         if qualifier != None:
             params['qualifier'] = qualifier
 
-        if observationTypeLabel != None:
-            params['observationType.label'] = observationTypeLabel
+        if label != None:
+            params['label'] = label
+
+        if stationWiskiID != None:
+            params['station.wiskiID'] = stationWiskiID
+
+        if observedPropertyLabel != None:
+            params['observedProperty.label'] = observedPropertyLabel
+
+        if observationType != None:
+            params['observationType'] = observationType
+
+        if projection != None:
+            params['_projection'] = projection
+
+        if offset != None:
+            params['_offset'] = offset
+
+        if parameterName != None:
+            params['parameterName'] = parameterName
+
+        if unit != None:
+            params['unit'] = unit
+
+        if observedProperty != None:
+            params['observedProperty'] = observedProperty
+
+        if unitName != None:
+            params['unitName'] = unitName
+
+        if limit != None:
+            params['_limit'] = limit
+
+        if station != None:
+            params['station'] = station
+
+        if valueStatisticLabel != None:
+            params['valueStatistic.label'] = valueStatisticLabel
+
+        if notation != None:
+            params['notation'] = notation
 
 
         try:
@@ -245,17 +245,17 @@ class Renders:
 
     def measuresById(
     self, 
-    id=None,
-    projection=None
+    projection=None,
+    id=None
     ):
 
         params = {}
         
-        if id != None:
-            params['id'] = id
-
         if projection != None:
             params['_projection'] = projection
+
+        if id != None:
+            params['id'] = id
 
 
         try:
@@ -273,49 +273,49 @@ class Renders:
 
     def readingsByMeasure(
     self, 
-    date=None,
-    minDate=None,
-    maxDate=None,
-    projection=None,
     view=None,
-    earliest=None,
-    latest=None,
-    mineqDate=None,
     measure=None,
-    maxeqDate=None
+    earliest=None,
+    minDate=None,
+    latest=None,
+    date=None,
+    maxDate=None,
+    maxeqDate=None,
+    mineqDate=None,
+    projection=None
     ):
 
         params = {}
         
-        if date != None:
-            params['date'] = date
-
-        if minDate != None:
-            params['min-date'] = minDate
-
-        if maxDate != None:
-            params['max-date'] = maxDate
-
-        if projection != None:
-            params['_projection'] = projection
-
         if view != None:
             params['view'] = view
-
-        if earliest != None:
-            params['earliest'] = earliest
-
-        if latest != None:
-            params['latest'] = latest
-
-        if mineqDate != None:
-            params['mineq-date'] = mineqDate
 
         if measure != None:
             params['measure'] = measure
 
+        if earliest != None:
+            params['earliest'] = earliest
+
+        if minDate != None:
+            params['min-date'] = minDate
+
+        if latest != None:
+            params['latest'] = latest
+
+        if date != None:
+            params['date'] = date
+
+        if maxDate != None:
+            params['max-date'] = maxDate
+
         if maxeqDate != None:
             params['maxeq-date'] = maxeqDate
+
+        if mineqDate != None:
+            params['mineq-date'] = mineqDate
+
+        if projection != None:
+            params['_projection'] = projection
 
 
         try:
@@ -333,106 +333,124 @@ class Renders:
 
     def stations(
     self, 
-    catchmentName=None,
-    boreholeDepth=None,
-    measuresObservedPropertyLabel=None,
-    measuresValueStatistic=None,
-    measuresValueStatisticLabel=None,
-    limit=None,
+    easting=None,
+    statusLabel=None,
+    sort=None,
+    lat=None,
+    riverName=None,
     dist=None,
-    long=None,
-    measuresObservationTypeLabel=None,
-    northing=None,
-    search=None,
-    offset=None,
-    measuresQualifier=None,
-    projection=None,
-    measuresUnitName=None,
+    dateOpened=None,
     stationReference=None,
-    measuresLabel=None,
+    measures=None,
+    long=None,
     measuresNotation=None,
+    label=None,
+    type=None,
+    boreholeDepth=None,
+    measuresObservedProperty=None,
+    measuresUnitName=None,
+    projection=None,
+    nrfaStationID=None,
+    sampleOf=None,
+    measuresValueStatisticLabel=None,
+    town=None,
+    offset=None,
+    observedProperty=None,
+    aquifer=None,
     nrfaStationURL=None,
     wiskiID=None,
-    label=None,
-    observedProperty=None,
-    dateOpened=None,
-    statusLabel=None,
-    aquifer=None,
-    sampleOf=None,
-    measures=None,
-    sampleOfLabel=None,
-    status=None,
-    easting=None,
-    measuresObservationType=None,
     measuresPeriod=None,
-    RLOIid=None,
-    sort=None,
+    limit=None,
+    northing=None,
+    measuresLabel=None,
+    measuresQualifier=None,
+    sampleOfLabel=None,
+    search=None,
+    measuresObservationType=None,
+    status=None,
+    measuresObservedPropertyLabel=None,
     notation=None,
-    town=None,
-    measuresObservedProperty=None,
-    riverName=None,
-    type=None,
-    nrfaStationID=None,
+    RLOIid=None,
+    measuresObservationTypeLabel=None,
+    measuresValueStatistic=None,
     datum=None,
-    lat=None
+    catchmentName=None
     ):
 
         params = {}
         params['_limit'] = 5
         
-        if catchmentName != None:
-            params['catchmentName'] = catchmentName
+        if easting != None:
+            params['easting'] = easting
 
-        if boreholeDepth != None:
-            params['boreholeDepth'] = boreholeDepth
+        if statusLabel != None:
+            params['status.label'] = statusLabel
 
-        if measuresObservedPropertyLabel != None:
-            params['measures.observedProperty.label'] = measuresObservedPropertyLabel
+        if sort != None:
+            params['_sort'] = sort
 
-        if measuresValueStatistic != None:
-            params['measures.valueStatistic'] = measuresValueStatistic
+        if lat != None:
+            params['lat'] = lat
 
-        if measuresValueStatisticLabel != None:
-            params['measures.valueStatistic.label'] = measuresValueStatisticLabel
-
-        if limit != None:
-            params['_limit'] = limit
+        if riverName != None:
+            params['riverName'] = riverName
 
         if dist != None:
             params['dist'] = dist
 
-        if long != None:
-            params['long'] = long
-
-        if measuresObservationTypeLabel != None:
-            params['measures.observationType.label'] = measuresObservationTypeLabel
-
-        if northing != None:
-            params['northing'] = northing
-
-        if search != None:
-            params['search'] = search
-
-        if offset != None:
-            params['_offset'] = offset
-
-        if measuresQualifier != None:
-            params['measures.qualifier'] = measuresQualifier
-
-        if projection != None:
-            params['_projection'] = projection
-
-        if measuresUnitName != None:
-            params['measures.unitName'] = measuresUnitName
+        if dateOpened != None:
+            params['dateOpened'] = dateOpened
 
         if stationReference != None:
             params['stationReference'] = stationReference
 
-        if measuresLabel != None:
-            params['measures.label'] = measuresLabel
+        if measures != None:
+            params['measures'] = measures
+
+        if long != None:
+            params['long'] = long
 
         if measuresNotation != None:
             params['measures.notation'] = measuresNotation
+
+        if label != None:
+            params['label'] = label
+
+        if type != None:
+            params['type'] = type
+
+        if boreholeDepth != None:
+            params['boreholeDepth'] = boreholeDepth
+
+        if measuresObservedProperty != None:
+            params['measures.observedProperty'] = measuresObservedProperty
+
+        if measuresUnitName != None:
+            params['measures.unitName'] = measuresUnitName
+
+        if projection != None:
+            params['_projection'] = projection
+
+        if nrfaStationID != None:
+            params['nrfaStationID'] = nrfaStationID
+
+        if sampleOf != None:
+            params['sampleOf'] = sampleOf
+
+        if measuresValueStatisticLabel != None:
+            params['measures.valueStatistic.label'] = measuresValueStatisticLabel
+
+        if town != None:
+            params['town'] = town
+
+        if offset != None:
+            params['_offset'] = offset
+
+        if observedProperty != None:
+            params['observedProperty'] = observedProperty
+
+        if aquifer != None:
+            params['aquifer'] = aquifer
 
         if nrfaStationURL != None:
             params['nrfaStationURL'] = nrfaStationURL
@@ -440,71 +458,53 @@ class Renders:
         if wiskiID != None:
             params['wiskiID'] = wiskiID
 
-        if label != None:
-            params['label'] = label
+        if measuresPeriod != None:
+            params['measures.period'] = measuresPeriod
 
-        if observedProperty != None:
-            params['observedProperty'] = observedProperty
+        if limit != None:
+            params['_limit'] = limit
 
-        if dateOpened != None:
-            params['dateOpened'] = dateOpened
+        if northing != None:
+            params['northing'] = northing
 
-        if statusLabel != None:
-            params['status.label'] = statusLabel
+        if measuresLabel != None:
+            params['measures.label'] = measuresLabel
 
-        if aquifer != None:
-            params['aquifer'] = aquifer
-
-        if sampleOf != None:
-            params['sampleOf'] = sampleOf
-
-        if measures != None:
-            params['measures'] = measures
+        if measuresQualifier != None:
+            params['measures.qualifier'] = measuresQualifier
 
         if sampleOfLabel != None:
             params['sampleOf.label'] = sampleOfLabel
 
-        if status != None:
-            params['status'] = status
-
-        if easting != None:
-            params['easting'] = easting
+        if search != None:
+            params['search'] = search
 
         if measuresObservationType != None:
             params['measures.observationType'] = measuresObservationType
 
-        if measuresPeriod != None:
-            params['measures.period'] = measuresPeriod
+        if status != None:
+            params['status'] = status
 
-        if RLOIid != None:
-            params['RLOIid'] = RLOIid
-
-        if sort != None:
-            params['_sort'] = sort
+        if measuresObservedPropertyLabel != None:
+            params['measures.observedProperty.label'] = measuresObservedPropertyLabel
 
         if notation != None:
             params['notation'] = notation
 
-        if town != None:
-            params['town'] = town
+        if RLOIid != None:
+            params['RLOIid'] = RLOIid
 
-        if measuresObservedProperty != None:
-            params['measures.observedProperty'] = measuresObservedProperty
+        if measuresObservationTypeLabel != None:
+            params['measures.observationType.label'] = measuresObservationTypeLabel
 
-        if riverName != None:
-            params['riverName'] = riverName
-
-        if type != None:
-            params['type'] = type
-
-        if nrfaStationID != None:
-            params['nrfaStationID'] = nrfaStationID
+        if measuresValueStatistic != None:
+            params['measures.valueStatistic'] = measuresValueStatistic
 
         if datum != None:
             params['datum'] = datum
 
-        if lat != None:
-            params['lat'] = lat
+        if catchmentName != None:
+            params['catchmentName'] = catchmentName
 
 
         try:
@@ -522,17 +522,17 @@ class Renders:
 
     def stationsById(
     self, 
-    id=None,
-    projection=None
+    projection=None,
+    id=None
     ):
 
         params = {}
         
-        if id != None:
-            params['id'] = id
-
         if projection != None:
             params['_projection'] = projection
+
+        if id != None:
+            params['id'] = id
 
 
         try:
@@ -550,25 +550,25 @@ class Renders:
 
     def measuresByStation(
     self, 
-    station=None,
-    observationType=None,
+    projection=None,
     observedProperty=None,
-    projection=None
+    observationType=None,
+    station=None
     ):
 
         params = {}
         
-        if station != None:
-            params['station'] = station
-
-        if observationType != None:
-            params['observationType'] = observationType
+        if projection != None:
+            params['_projection'] = projection
 
         if observedProperty != None:
             params['observedProperty'] = observedProperty
 
-        if projection != None:
-            params['_projection'] = projection
+        if observationType != None:
+            params['observationType'] = observationType
+
+        if station != None:
+            params['station'] = station
 
 
         try:

@@ -3,7 +3,7 @@
 {% endmacro -%}
 import requests
 {% for class in mappings -%}
-from {{ class }} import {{ class }}
+from {{packageName}}.{{class}} import {{ class }}
 {% endfor %}
 class {{ pascalCase(packageName) }}:
 {% for function in functionStrings %}

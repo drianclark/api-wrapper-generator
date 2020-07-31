@@ -1,9 +1,9 @@
 class Station:
 
     def __init__(self, dict):
-        from Status import Status
         from SampleOf import SampleOf
         from Measure import Measure
+        from Status import Status
         
 
         for k, v in dict.items():
@@ -16,14 +16,14 @@ class Station:
         except:
             pass
         
-        if "status" in keys:
-            self._status = Status(dict["status"])
-        
         if "sampleOf" in keys:
             self._sampleOf = SampleOf(dict["sampleOf"])
         
         if "measure" in keys:
             self._measure = Measure(dict["measure"])
+        
+        if "status" in keys:
+            self._status = Status(dict["status"])
         
     def type(self):
         try:
