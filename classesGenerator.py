@@ -4,7 +4,7 @@ import inflect
 from collections import defaultdict
 from pprint import pprint
 from jinja2 import Template, Environment, FileSystemLoader
-from helpers import makeClassName, makeSingular
+from helpers import makeClassName, makeSingular, getObjectsRecursion
 
 p = inflect.engine()
 class ClassesGenerator:
@@ -44,6 +44,7 @@ class ClassesGenerator:
             # NESTED CLASS CLASE
             except KeyError:
                 className = makeClassName(schema)
+                # print(className)
                 
                 # if there is a base class of the same name, ignore it
                 # because we've already added its props to the base class
@@ -64,16 +65,3 @@ class ClassesGenerator:
             
             with open(f'{self.directory}/{className}.py', 'w') as f:
                 f.write(render)
-
-def getObjectsRecursion(key,dictionary):
-    for item in dictionary["allOf"]:
-        for k,v in item.items():
-            if k == "properties":
-                for k1,v1 in v.items():
-                    yield (key, {k1:v1})
-                    # if v1 is an object, get its properties to make a class out of it later
-                    if v1.get("allOf") != None:
-                        for k2,v2 in getObjectsRecursion(k1, v1):
-                            yield (k2,v2)
-                break
-                

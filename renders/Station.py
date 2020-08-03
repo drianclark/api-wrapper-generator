@@ -1,9 +1,9 @@
 class Station:
 
     def __init__(self, dict):
+        from renders.Measure import Measure
         from renders.SampleOf import SampleOf
         from renders.Status import Status
-        from renders.Measure import Measure
         
 
         for k, v in dict.items():
@@ -16,14 +16,14 @@ class Station:
         except:
             pass
         
+        if "measure" in keys:
+            self._measure = Measure(dict["measure"])
+        
         if "sampleOf" in keys:
             self._sampleOf = SampleOf(dict["sampleOf"])
         
         if "status" in keys:
             self._status = Status(dict["status"])
-        
-        if "measure" in keys:
-            self._measure = Measure(dict["measure"])
         
     def type(self):
         try:

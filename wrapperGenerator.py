@@ -2,7 +2,7 @@ import os
 import json
 from endpointFunctionsGenerator import EndpointFunctionsGenerator
 from classesGenerator import ClassesGenerator
-from helpers import getObjectsRecursion, makeClassName, makeSingular
+from helpers import getObjectsRecursion, makeClassName, makeSingular, getClassSchemaMappingsFromSpec
 from pprint import pprint
 from PyInquirer import prompt, print_json, Separator
 
@@ -312,7 +312,7 @@ class WrapperGenerator:
         
             
         # auto detect schema-class mappings and schema names
-        classMappings = self.getClassSchemaMappingsFromSpec(self.paths, self.schemas)
+        classMappings = getClassSchemaMappingsFromSpec(self.paths, self.schemas)
         schemaNames = self.getSchemaNameFromSpec()        
         
         # base classes are the classes with a corresponding component schema (not nested within one)
@@ -374,7 +374,7 @@ class WrapperGenerator:
                 break
         
         print("Generating config file")
-        self.writeConfigurationToFile({**baseClasses, **nestedClasses}, endpointClassMappings)
+        self.writeConfigurationToFile(baseClasses, endpointClassMappings)
         print(f"Generated config file: {self.config}")
     
     def getSchemaNameFromSpec(self):

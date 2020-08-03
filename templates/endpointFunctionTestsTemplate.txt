@@ -2,9 +2,10 @@
     {{ s[0]|upper}}{{s[1:] -}}
 {% endmacro -%}
 from {{packageName}}.{{packageName}} import {{ pascalCase(packageName) }}
-{% for class in classes -%}
-from {{packageName}}.{{class}} import {{ class }}
+{% for class in imports -%}
+from {{packageName}}.{{ pascalCase(class) }} import {{ pascalCase(class) }}
 {% endfor %}
+
 r = {{pascalCase(packageName)}}()
 
 {% for test in tests -%}
