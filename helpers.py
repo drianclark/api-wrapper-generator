@@ -80,3 +80,37 @@ def constructEndpointFunctionName(endpointPath):
         functionName += 'And'.join(urlParams)
         
     return functionName
+
+def getClassSchemaMappingsFromSpec(paths, schemas):
+    classes = {}
+                            
+    # collect and construct base class names using endpoint paths
+    for pathName, info in paths.items():
+        if "?_view" not in pathName and '{' not in pathName:
+            noLeadingSlash = pathName[1:]
+                                
+            # this contains all the strings between slashes
+            splitBySlash = noLeadingSlash.split("/")
+            urlParams = [makeClassName(s[1:-1]) for s in splitBySlash if '{' in s]
+            nonParams = [s for s in splitBySlash if '{' not in s]
+                                
+            returnObjectType = info["get"]["responses"]["200"]["content"]["application/json"]["schema"]["properties"]["items"]["items"]["$ref"].split("/")[-1]
+            className = makeClassName(nonParams[-1])
+            className = makeSingular(className)
+                    
+            classes[returnObjectType] = className
+                    
+    # collecting nested attributes
+    for schema, schemaInfo in schemas.items():
+        if "-default" in schema:
+            for _class,_prop in getObjectsRecursion(schema, schemaInfo):
+                # only get nested object attributes (they don't have dashes)
+                if '-' not in _class:
+                    className = makeSingular(makeClassName(_class))
+                            
+                    # making sure we don't overwrite base classes
+                    # with nested ones of the same name
+                    if className not in classes:
+                        classes[_class] = makeSingular(className)
+                                
+    return classes

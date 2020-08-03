@@ -312,7 +312,7 @@ class WrapperGenerator:
         
             
         # auto detect schema-class mappings and schema names
-        classMappings = self.getClassSchemaMappingsFromSpec()
+        classMappings = self.getClassSchemaMappingsFromSpec(self.paths, self.schemas)
         schemaNames = self.getSchemaNameFromSpec()        
         
         # base classes are the classes with a corresponding component schema (not nested within one)
@@ -324,7 +324,7 @@ class WrapperGenerator:
         # keep track of renamed classes for future reference
         renameMap = {}
         
-        for className, schemaName in classMappings.items():
+        for schemaName, className in classMappings.items():
             if '-' in schemaName:
                 baseClasses[schemaName] = className
             else:
@@ -356,7 +356,6 @@ class WrapperGenerator:
                 
             elif action == 'Rename a base class':
                 renameBaseClassMenu(baseClasses, renameMap)
-                print(renameMap)
                 
             elif action == 'Delete a base class':
                 deleteBaseClassMenu(baseClasses)
@@ -375,44 +374,8 @@ class WrapperGenerator:
                 break
         
         print("Generating config file")
-        self.writeConfigurationToFile(baseClasses, endpointClassMappings)
+        self.writeConfigurationToFile({**baseClasses, **nestedClasses}, endpointClassMappings)
         print(f"Generated config file: {self.config}")
-            
-    def getClassSchemaMappingsFromSpec(self):
-        classes = {}
-                        
-        # collect and construct base class names using endpoint paths
-        for pathName, info in self.paths.items():
-            if "?_view" not in pathName and '{' not in pathName:
-                noLeadingSlash = pathName[1:]
-                            
-                # this contains all the strings between slashes
-                splitBySlash = noLeadingSlash.split("/")
-                urlParams = [makeClassName(s[1:-1]) for s in splitBySlash if '{' in s]
-                nonParams = [s for s in splitBySlash if '{' not in s]
-                            
-                returnObjectType = info["get"]["responses"]["200"]["content"]["application/json"]["schema"]["properties"]["items"]["items"]["$ref"].split("/")[-1]
-                className = makeClassName(nonParams[-1])
-                className = makeSingular(className)
-                print(className)
-                
-                classes[className] = returnObjectType
-                
-        # collecting nested attributes
-        for schema, schemaInfo in self.schemas.items():
-            if "-default" in schema:
-                for _class,_prop in getObjectsRecursion(schema, schemaInfo):
-                    # only get nested object attributes (they don't have dashes)
-                    if '-' not in _class:
-                        className = makeSingular(makeClassName(_class))
-                        
-                        # making sure we don't overwrite base classes
-                        # with nested ones of the same name
-                        if className not in classes:
-                            classes[className] = _class
-                            
-        print(classes)                
-        return classes
     
     def getSchemaNameFromSpec(self):
         # get schema names with '-' in them
@@ -467,7 +430,6 @@ class WrapperGenerator:
             
         print("Generating classes")
         self.classesGenerator.generateClasses()
-        print(self.classesGenerator.classes)
         print("Generating functions")
         self.functionsGenerator.generateEndpointFunctions()
         print("Wrapper generated!")
