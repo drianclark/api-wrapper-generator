@@ -51,9 +51,6 @@ def getObjectsRecursion(key,dictionary):
                     # if v1 is an object, get its properties to make a class out of it later
                     if v1.get("allOf") != None:
                         for k2,v2 in getObjectsRecursion(k1, v1):
-                            # print(k2)
-                            # print(v2)
-                            # print()
                             yield (k2,v2)
                 break
             
@@ -114,3 +111,17 @@ def getClassSchemaMappingsFromSpec(paths, schemas):
                         classes[_class] = makeSingular(className)
                                 
     return classes
+
+def getSchemaFromEndpoint(endpoint, spec):
+    schemaRef = spec["paths"][endpoint]["get"]["responses"]["200"]["content"]["application/json"]["schema"]["properties"]["items"]["items"]["$ref"]
+    schemaName = schemaRef.split('/')[-1]
+    
+    schema = spec["components"]["schemas"][schemaName]
+    
+    return schema
+
+def getSchemaNameFromEndpoint(endpoint, spec):
+    schemaRef = spec["paths"][endpoint]["get"]["responses"]["200"]["content"]["application/json"]["schema"]["properties"]["items"]["items"]["$ref"]
+    schemaName = schemaRef.split('/')[-1]
+    
+    return schemaName

@@ -5,6 +5,9 @@ def test{{ pascalCase(functionName) }}():
     data = r.{{functionName}}()
     {% if returnFormat == 'list' -%}
     assert all(isinstance(x, {{ returnType }}) for x in data)
+    {% for prop in requiredProps -%}
+    assert all(x.{{prop}}() != None for x in data)
+    {% endfor %}
     {% else -%}
     assert isinstance(data, {{ returnType }})
     {% endif -%}

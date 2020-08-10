@@ -1,6 +1,6 @@
 import json
 from pprint import pprint
-from helpers import constructEndpointFunctionName, getClassSchemaMappingsFromSpec, getObjectsRecursion, makeClassName, makeSingular
+from helpers import constructEndpointFunctionName, getClassSchemaMappingsFromSpec, getObjectsRecursion, makeClassName, makeSingular, getSchemaFromEndpoint, getSchemaNameFromEndpoint
 from jinja2 import Template, Environment, FileSystemLoader
 
 class TestsGenerator:
@@ -18,6 +18,7 @@ class TestsGenerator:
         
         with open(spec) as f:
             jsonSpec = json.load(f)
+            self.spec = jsonSpec
             
         paths = jsonSpec["paths"]
         schemas = jsonSpec["components"]["schemas"]
@@ -28,12 +29,10 @@ class TestsGenerator:
                 if '-' not in _class:
                     self.nestedClasses.add(makeSingular(makeClassName(_class)))
                 
-        print(self.nestedClasses)
-        
     def generateFunctionsTests(self):
-        def createEndpointFunctionTest(endpoint, returnType):
+        def generateFunctionTest(endpoint, returnType):
             env = Environment(loader=FileSystemLoader('templates'))
-            template = env.get_template('endpointFunctionTestTemplate.txt')
+            testTemplate = env.get_template('endpointFunctionTestTemplate.txt')
                         
             # construct the function name using the endpoint path
             functionName = constructEndpointFunctionName(endpoint)
@@ -41,9 +40,33 @@ class TestsGenerator:
             # removing brackets if present
             returnType = returnType[1:-1] if '[' in returnType else returnType
             
-            render = template.render(functionName=functionName, 
+            # test all the nested classes as well
+            schemaName = getSchemaNameFromEndpoint(endpoint, self.spec)
+            schema = getSchemaFromEndpoint(endpoint, self.spec)
+            
+            requiredProps = set()
+            
+            for _class,_prop in getObjectsRecursion(schemaName, schema):
+                for propName, propInfo in _prop.items():
+                    # if property is not nested
+                    if '-' in _class:
+                        try:
+                            if propInfo['type'] == "array":
+                                if propInfo['items'].get('nullable') == False:
+                                    requiredProps.add(propName)
+                            else:
+                                if propInfo.get('nullable') == False:
+                                    requiredProps.add(propName)
+                        except KeyError:
+                            continue    
+
+            print(requiredProps)
+            # deal with nested properties later
+        
+            render = testTemplate.render(functionName=functionName, 
                                      returnFormat=returnFormat, 
-                                     returnType=returnType)
+                                     returnType=returnType,
+                                     requiredProps=requiredProps)
             
             return render
 
@@ -51,7 +74,7 @@ class TestsGenerator:
         classes = set()
         for endpoint, returnType in self.endpointMappings.items():
             if '{' not in endpoint:
-                tests.append(createEndpointFunctionTest(endpoint, returnType))
+                tests.append(generateFunctionTest(endpoint, returnType))
                 returnType = returnType[1:-1] if '[' in returnType else returnType
                 classes.add(returnType)
                 
@@ -62,9 +85,14 @@ class TestsGenerator:
         render = template.render(tests=tests,
                                  imports=imports,
                                  packageName=self.packageName)
-    
+        
+        # for each class, find which endpoint returns that class
+        # execute that endpoint
+        # test the result against the expected attributes and types
+        
         with open(f'test_{self.packageName}.py', 'w') as f:
             f.write(render)
+            
         
 t = TestsGenerator('renders', 'wrapper_config.json', 'hydrology-oas.json')
         

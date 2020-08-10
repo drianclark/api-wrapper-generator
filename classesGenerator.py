@@ -46,7 +46,7 @@ class ClassesGenerator:
                 className = makeClassName(schema)
                 # print(className)
                 
-                # if there is a base class of the same name, ignore it
+                # if there is a nested class of the same name, ignore it
                 # because we've already added its props to the base class
                 if className in self.classes.values():
                     continue
