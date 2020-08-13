@@ -1,6 +1,6 @@
 import json
 from pprint import pprint
-from helpers import constructEndpointFunctionName, getClassSchemaMappingsFromSpec, getObjectsRecursion, makeClassName, makeSingular, getSchemaFromEndpoint, getSchemaNameFromEndpoint
+from helpers import constructEndpointFunctionName, getClassSchemaMappingsFromSpec, getObjectsRecursion, makeClassName, makeSingular, getSchemaFromEndpoint, getSchemaNameFromEndpoint, getNestedObjectsAccessorRecursion
 from jinja2 import Template, Environment, FileSystemLoader
 
 class TestsGenerator:
@@ -45,6 +45,9 @@ class TestsGenerator:
             schema = getSchemaFromEndpoint(endpoint, self.spec)
             
             requiredProps = set()
+
+            # dictionary with key base class and 
+            nestedProps = set()
             
             for _class,_prop in getObjectsRecursion(schemaName, schema):
                 for propName, propInfo in _prop.items():
@@ -60,9 +63,16 @@ class TestsGenerator:
                         except KeyError:
                             continue    
 
-            print(requiredProps)
-            # deal with nested properties later
+            for prop,_ in getNestedObjectsAccessorRecursion(schemaName, schema):
+                nestedProps.add(prop)
+
+            # turn nestedProps accessors to getter function calls
+            splitProps = [ accessor.split('.') for accessor in nestedProps ]
+            toGetters = [ list(map(lambda x: x + '()', accessorList)) for accessorList in splitProps ]
+            nestedProps = [ '.'.join(gettersList) for gettersList in toGetters ]
         
+            print(nestedProps)
+            
             render = testTemplate.render(functionName=functionName, 
                                      returnFormat=returnFormat, 
                                      returnType=returnType,

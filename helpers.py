@@ -54,6 +54,24 @@ def getObjectsRecursion(key,dictionary):
                             yield (k2,v2)
                 break
             
+def getNestedObjectsAccessorRecursion(key,dictionary):
+    for item in dictionary["allOf"]:
+        for k,v in item.items():
+            if k == "properties":
+                for k1,v1 in v.items():
+                    # if this prop is already nested within another
+                    if '-' not in key:
+                        yield (f'{key}.{k1}', {k1:v1})
+                        # if v1 is a nested object with more objects within it
+                    if v1.get("allOf") != None:
+                        if '-' not in key:
+                            for k2,v2 in getNestedObjectsAccessorRecursion(f'{key}.{k1}', v1):
+                                yield (k2,v2) 
+                        else: 
+                            for k2,v2 in getNestedObjectsAccessorRecursion(k1, v1):
+                                yield (k2,v2)
+                break
+            
 def makeSingular(s):
     p = inflect.engine()
     
