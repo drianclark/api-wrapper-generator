@@ -15,7 +15,10 @@ class Reading:
             pass
         
         if "measure" in keys:
-            self._measure = Measure(dict["measure"])
+            try: 
+                self._measure = Measure(dict["measure"])
+            except AttributeError:
+                self._measure = [Measure(x) for x in dict["measure"]]
         
     def measure(self):
         try:

@@ -5,7 +5,7 @@ class {{ className }}:
 
     def __init__(self, dict):
         {% for objectAttribute in objectAttributes -%}
-        from {{packageName}}.{{ pascalCase(objectAttribute) }} import {{ pascalCase(objectAttribute) }}
+        from {{packageName}}.{{ pascalCase(objectAttribute[1]) }} import {{ pascalCase(objectAttribute[1]) }}
         {% endfor %}
 
         for k, v in dict.items():
@@ -18,8 +18,11 @@ class {{ className }}:
         except:
             pass
         {% for objectAttribute in objectAttributes %}
-        if "{{ objectAttribute }}" in keys:
-            self._{{ objectAttribute }} = {{pascalCase(objectAttribute)}}(dict["{{objectAttribute}}"])
+        if "{{ objectAttribute[0] }}" in keys:
+            try: 
+                self._{{ objectAttribute[0] }} = {{pascalCase(objectAttribute[1])}}(dict["{{objectAttribute[0]}}"])
+            except AttributeError:
+                self._{{ objectAttribute[0] }} = [{{pascalCase(objectAttribute[1])}}(x) for x in dict["{{objectAttribute[0]}}"]]
         {% endfor -%}
         
     {% for propertyObject in properties -%}

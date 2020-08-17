@@ -56,7 +56,10 @@ class ClassesGenerator:
                 for propName, propInfo in prop.items():
                     # if prop is a nested class, add it to objectAttributes
                     if makeSingular(propName) in list(classProps.keys()):
-                        objectAttributes.add(makeSingular(propName))
+                        objectAttributes.add((
+                            propName,
+                            makeSingular(propName)
+                        ))
             
             render = template.render(className=className, properties=props, objectAttributes=objectAttributes, packageName=self.directory)
 

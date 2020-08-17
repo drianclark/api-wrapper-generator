@@ -40,7 +40,7 @@ class EndpointFunctionsGenerator:
                 self.endpoints[endpoint]["optionalParameters"] = set()
                 required = self.endpoints[endpoint]["requiredParameters"]
                 optional = self.endpoints[endpoint]["optionalParameters"]
-                                
+                
                 # collecting required and optional parameters as tuples
                 #    (api parameter name, camelised parameter name)
                 

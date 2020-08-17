@@ -63,8 +63,17 @@ class TestsGenerator:
                         except KeyError:
                             continue    
 
-            for prop,_ in getNestedObjectsAccessorRecursion(schemaName, schema):
-                nestedProps.add(prop)
+            for propAccessor, propInfo in getNestedObjectsAccessorRecursion(schemaName, schema):
+                for propName, details in propInfo.items():
+                    try:
+                        if details['type'] == "array":
+                            if details['items'].get('nullable') == False:
+                                nestedProps.add(propAccessor)
+                        else:
+                            if propInfo.get('nullable') == False:
+                                nestedProps.add(propAccessor)
+                    except KeyError:
+                        continue
 
             # turn nestedProps accessors to getter function calls
             splitProps = [ accessor.split('.') for accessor in nestedProps ]

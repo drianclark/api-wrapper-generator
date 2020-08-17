@@ -1,10 +1,10 @@
 class Measure:
 
     def __init__(self, dict):
-        from renders.ObservationType import ObservationType
-        from renders.Station import Station
         from renders.ObservedProperty import ObservedProperty
         from renders.ValueStatistic import ValueStatistic
+        from renders.Station import Station
+        from renders.ObservationType import ObservationType
         
 
         for k, v in dict.items():
@@ -17,17 +17,29 @@ class Measure:
         except:
             pass
         
-        if "observationType" in keys:
-            self._observationType = ObservationType(dict["observationType"])
-        
-        if "station" in keys:
-            self._station = Station(dict["station"])
-        
         if "observedProperty" in keys:
-            self._observedProperty = ObservedProperty(dict["observedProperty"])
+            try: 
+                self._observedProperty = ObservedProperty(dict["observedProperty"])
+            except AttributeError:
+                self._observedProperty = [ObservedProperty(x) for x in dict["observedProperty"]]
         
         if "valueStatistic" in keys:
-            self._valueStatistic = ValueStatistic(dict["valueStatistic"])
+            try: 
+                self._valueStatistic = ValueStatistic(dict["valueStatistic"])
+            except AttributeError:
+                self._valueStatistic = [ValueStatistic(x) for x in dict["valueStatistic"]]
+        
+        if "station" in keys:
+            try: 
+                self._station = Station(dict["station"])
+            except AttributeError:
+                self._station = [Station(x) for x in dict["station"]]
+        
+        if "observationType" in keys:
+            try: 
+                self._observationType = ObservationType(dict["observationType"])
+            except AttributeError:
+                self._observationType = [ObservationType(x) for x in dict["observationType"]]
         
     def label(self):
         try:
