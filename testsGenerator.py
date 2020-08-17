@@ -44,9 +44,11 @@ class TestsGenerator:
             schema = getSchemaFromEndpoint(endpoint, self.spec)
             
             requiredProps = {}
+            optionalProps = {}
 
             # dictionary with key base class and value return type
-            nestedProps = set()
+            requiredNestedProps = {}
+            optionalNestedProps = {}
             
             for _class,_prop in getObjectsRecursion(schemaName, schema):
                 for propName, propInfo in _prop.items():
@@ -56,35 +58,46 @@ class TestsGenerator:
                             if propInfo['type'] == "array":
                                 if propInfo['items'].get('nullable') == False:
                                     requiredProps[propName] = "array"
+                                else:
+                                    optionalProps[propName] = "array"
                             else:
                                 if propInfo.get('nullable') == False:
                                     requiredProps[propName] = propInfo["type"]
+                                else: 
+                                    optionalProps[propName] = propInfo["type"]
                         except KeyError:
                             continue    
 
             for propAccessor, propInfo in getNestedObjectsAccessorRecursion(schemaName, schema):
+                accessor = '.'.join(list(map(lambda x: x + '()', propAccessor.split('.'))))
                 for propName, details in propInfo.items():
                     try:
                         if details['type'] == "array":
                             if details['items'].get('nullable') == False:
-                                nestedProps.add(propAccessor)
+                                requiredNestedProps[accessor] = "array"
+                            else:
+                                optionalNestedProps[accessor] = "array"
                         else:
-                            if propInfo.get('nullable') == False:
-                                nestedProps.add(propAccessor)
+                            if details.get('nullable') == False:
+                                requiredNestedProps[accessor] = details["type"]
+                            else:
+                                optionalNestedProps[accessor] = details["type"]
+
                     except KeyError:
                         continue
 
             # turn nestedProps accessors to getter function calls
-            splitProps = [ accessor.split('.') for accessor in nestedProps ]
-            toGetters = [ list(map(lambda x: x + '()', accessorList)) for accessorList in splitProps ]
-            nestedProps = [ '.'.join(gettersList) for gettersList in toGetters ]
+            # splitProps = [ accessor.split('.') for accessor in nestedProps ]
+            # toGetters = [ list(map(lambda x: x + '()', accessorList)) for accessorList in splitProps ]
+            # nestedProps = [ '.'.join(gettersList) for gettersList in toGetters ]
         
-            print(nestedProps)
+            # print(nestedProps)
             
             render = testTemplate.render(functionName=functionName, 
                                      returnFormat=returnFormat, 
                                      returnType=returnType,
-                                     requiredProps=requiredProps)
+                                     requiredProps=requiredProps,
+                                     optionalProps=optionalProps)
             
             return render
 

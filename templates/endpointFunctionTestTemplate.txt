@@ -20,4 +20,21 @@ def test{{ pascalCase(functionName) }}():
     {% endfor -%}
     {% else -%}
     assert isinstance(data, {{ returnType }})
-    {% endif -%}
+    {% endif %}
+
+    {% for propName, propReturn in optionalProps.items() %}
+    try:
+        dataWith{{propName}} = r.{{functionName}}(exists=['{{propName}}'], limit=1)[0]
+        assert (dataWith{{propName}}.{{propName}}() != None)
+        {%- if propReturn == 'string' %}
+        assert isinstance(dataWith{{propName}}.{{propName}}(), str)
+        {%- endif -%}
+        {%- if propReturn == 'number' %}
+        assert isinstance(dataWith{{propName}}.{{propName}}(), (int, float)) 
+        {%- endif -%}
+        {%- if propReturn == 'object' %}
+        assert isinstance(dataWith{{propName}}.{{propName}}(), (pascalCase(propReturn))) 
+        {%- endif %}
+    except IndexError:
+        print('No data found with prop {{propName}}')
+    {% endfor %}

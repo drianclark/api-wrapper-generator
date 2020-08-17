@@ -1,9 +1,9 @@
 class Station:
 
     def __init__(self, dict):
+        from renders.SampleOf import SampleOf
         from renders.Status import Status
         from renders.Measure import Measure
-        from renders.SampleOf import SampleOf
         
 
         for k, v in dict.items():
@@ -16,6 +16,12 @@ class Station:
         except:
             pass
         
+        if "sampleOf" in keys:
+            try: 
+                self._sampleOf = SampleOf(dict["sampleOf"])
+            except AttributeError:
+                self._sampleOf = [SampleOf(x) for x in dict["sampleOf"]]
+        
         if "status" in keys:
             try: 
                 self._status = Status(dict["status"])
@@ -27,12 +33,6 @@ class Station:
                 self._measures = Measure(dict["measures"])
             except AttributeError:
                 self._measures = [Measure(x) for x in dict["measures"]]
-        
-        if "sampleOf" in keys:
-            try: 
-                self._sampleOf = SampleOf(dict["sampleOf"])
-            except AttributeError:
-                self._sampleOf = [SampleOf(x) for x in dict["sampleOf"]]
         
     def type(self):
         try:

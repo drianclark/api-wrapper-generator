@@ -1,10 +1,10 @@
 class Measure:
 
     def __init__(self, dict):
+        from renders.ObservedProperty import ObservedProperty
+        from renders.ValueStatistic import ValueStatistic
         from renders.Station import Station
         from renders.ObservationType import ObservationType
-        from renders.ValueStatistic import ValueStatistic
-        from renders.ObservedProperty import ObservedProperty
         
 
         for k, v in dict.items():
@@ -17,6 +17,18 @@ class Measure:
         except:
             pass
         
+        if "observedProperty" in keys:
+            try: 
+                self._observedProperty = ObservedProperty(dict["observedProperty"])
+            except AttributeError:
+                self._observedProperty = [ObservedProperty(x) for x in dict["observedProperty"]]
+        
+        if "valueStatistic" in keys:
+            try: 
+                self._valueStatistic = ValueStatistic(dict["valueStatistic"])
+            except AttributeError:
+                self._valueStatistic = [ValueStatistic(x) for x in dict["valueStatistic"]]
+        
         if "station" in keys:
             try: 
                 self._station = Station(dict["station"])
@@ -28,18 +40,6 @@ class Measure:
                 self._observationType = ObservationType(dict["observationType"])
             except AttributeError:
                 self._observationType = [ObservationType(x) for x in dict["observationType"]]
-        
-        if "valueStatistic" in keys:
-            try: 
-                self._valueStatistic = ValueStatistic(dict["valueStatistic"])
-            except AttributeError:
-                self._valueStatistic = [ValueStatistic(x) for x in dict["valueStatistic"]]
-        
-        if "observedProperty" in keys:
-            try: 
-                self._observedProperty = ObservedProperty(dict["observedProperty"])
-            except AttributeError:
-                self._observedProperty = [ObservedProperty(x) for x in dict["observedProperty"]]
         
     def label(self):
         try:

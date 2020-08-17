@@ -12,7 +12,8 @@ class EndpointFunctionsGenerator:
         self.apiSpec = apiSpec
         self.outFile = outFile
         self.directory = directory
-        self.API_URL = "https://environment.data.gov.uk"
+        # self.API_URL = "https://environment.data.gov.uk"
+        self.API_URL = "https://hydrology-test.epimorphics.net"
         
         with open(config) as f:
             self.mappings = json.load(f)["returnTypes"]
