@@ -10,4 +10,5 @@ r = {{pascalCase(packageName)}}()
 
 {% for test in tests -%}
 {{ test }}
+
 {% endfor %} 

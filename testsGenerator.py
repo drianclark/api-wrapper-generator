@@ -40,13 +40,12 @@ class TestsGenerator:
             # removing brackets if present
             returnType = returnType[1:-1] if '[' in returnType else returnType
             
-            # test all the nested classes as well
             schemaName = getSchemaNameFromEndpoint(endpoint, self.spec)
             schema = getSchemaFromEndpoint(endpoint, self.spec)
             
-            requiredProps = set()
+            requiredProps = {}
 
-            # dictionary with key base class and 
+            # dictionary with key base class and value return type
             nestedProps = set()
             
             for _class,_prop in getObjectsRecursion(schemaName, schema):
@@ -56,10 +55,10 @@ class TestsGenerator:
                         try:
                             if propInfo['type'] == "array":
                                 if propInfo['items'].get('nullable') == False:
-                                    requiredProps.add(propName)
+                                    requiredProps[propName] = "array"
                             else:
                                 if propInfo.get('nullable') == False:
-                                    requiredProps.add(propName)
+                                    requiredProps[propName] = propInfo["type"]
                         except KeyError:
                             continue    
 

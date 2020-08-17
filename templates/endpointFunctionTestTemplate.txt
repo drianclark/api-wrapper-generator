@@ -3,11 +3,21 @@
 {% endmacro -%}
 def test{{ pascalCase(functionName) }}():
     data = r.{{functionName}}()
+
     {% if returnFormat == 'list' -%}
     assert all(isinstance(x, {{ returnType }}) for x in data)
-    {% for prop in requiredProps -%}
-    assert all(x.{{prop}}() != None for x in data)
-    {% endfor %}
+    {%- for propName, propReturn in requiredProps.items() %}
+    assert all(x.{{propName}}() != None for x in data)
+    {%- if propReturn == 'string' %}
+    assert all(isinstance(x.{{propName}}(), str) for x in data)       
+    {%- endif -%}
+    {%- if propReturn == 'number' %}
+    assert all(isinstance(x.{{propName}}(), (int, float)) for x in data)       
+    {%- endif -%}
+    {%- if propReturn == 'object' %}
+    assert all(isinstance(x.{{propName}}(), (pascalCase(propReturn))) for x in data)
+    {%- endif -%}
+    {% endfor -%}
     {% else -%}
     assert isinstance(data, {{ returnType }})
     {% endif -%}
