@@ -36,7 +36,7 @@ def makeFunctionName(s):
     return functionName
 
 def makeClassName(s):
-    camel = makeParamName(s)
+    camel = makeParamName(makeSingular(s))
     pascal = camel[0].upper() + camel[1:]
     
     return pascal

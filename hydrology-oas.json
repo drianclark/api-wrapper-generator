@@ -2402,19 +2402,19 @@
               "nullable" : false
             },
             "easting" : {
-              "type" : "string",
+              "type" : "number",
               "nullable" : false
             },
             "northing" : {
-              "type" : "string",
+              "type" : "number",
               "nullable" : false
             },
             "lat" : {
-              "type" : "string",
+              "type" : "number",
               "nullable" : false
             },
             "long" : {
-              "type" : "string",
+              "type" : "number",
               "nullable" : false
             },
             "catchmentName" : {
@@ -2695,7 +2695,7 @@
               } ]
             },
             "unit" : {
-              "type" : "string",
+              "type" : "object",
               "nullable" : false
             },
             "unitName" : {

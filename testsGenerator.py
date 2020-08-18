@@ -1,4 +1,5 @@
 import json
+import re
 from pprint import pprint
 from helpers import constructEndpointFunctionName, getClassSchemaMappingsFromSpec, getObjectsRecursion, makeClassName, makeSingular, getSchemaFromEndpoint, getSchemaNameFromEndpoint, getNestedObjectsAccessorRecursion
 from jinja2 import Template, Environment, FileSystemLoader
@@ -28,7 +29,7 @@ class TestsGenerator:
             for _class,_prop in getObjectsRecursion(schema, schemas[schema]):
                 if '-' not in _class:
                     self.nestedClasses.add(makeSingular(makeClassName(_class)))
-                
+    
     def generateFunctionsTests(self):
         def generateFunctionTest(endpoint, returnType):
             env = Environment(loader=FileSystemLoader('templates'))
@@ -43,61 +44,73 @@ class TestsGenerator:
             schemaName = getSchemaNameFromEndpoint(endpoint, self.spec)
             schema = getSchemaFromEndpoint(endpoint, self.spec)
             
-            requiredProps = {}
-            optionalProps = {}
-
             # dictionary with key base class and value return type
-            requiredNestedProps = {}
-            optionalNestedProps = {}
+            requiredProps = []
+            optionalProps = []
+            # list of dictionaries for each prop
+            requiredNestedProps = []
+            optionalNestedProps = []
             
             for _class,_prop in getObjectsRecursion(schemaName, schema):
                 for propName, propInfo in _prop.items():
+                    propObject = {}
+                    propObject["attribute"] = propName
                     # if property is not nested
                     if '-' in _class:
                         try:
                             if propInfo['type'] == "array":
-                                if propInfo['items'].get('nullable') == False:
-                                    requiredProps[propName] = "array"
+                                propObject["type"] = "array"
+                                propObject["content-type"] = propInfo["items"]["type"]
+                                
+                                if propInfo["items"].get("nullable") == False:
+                                    requiredProps.append(propObject)
                                 else:
-                                    optionalProps[propName] = "array"
+                                    optionalProps.append(propObject)
                             else:
+                                propObject["type"] = propInfo["type"]
                                 if propInfo.get('nullable') == False:
-                                    requiredProps[propName] = propInfo["type"]
+                                    requiredProps.append(propObject)
                                 else: 
-                                    optionalProps[propName] = propInfo["type"]
+                                    optionalProps.append(propObject)
                         except KeyError:
                             continue    
 
             for propAccessor, propInfo in getNestedObjectsAccessorRecursion(schemaName, schema):
+                attribute = re.sub(r'[^a-zA-Z]', '', propAccessor)
                 accessor = '.'.join(list(map(lambda x: x + '()', propAccessor.split('.'))))
                 for propName, details in propInfo.items():
+                    propObject = {}
                     try:
+                        propObject['attribute'] = attribute
+                        propObject['accessor'] = accessor
+                        
                         if details['type'] == "array":
+                            propObject['type'] = "array"
+                            propObject['content-type'] = details["items"]["type"]
                             if details['items'].get('nullable') == False:
-                                requiredNestedProps[accessor] = "array"
+                                requiredNestedProps.append(propObject)
                             else:
-                                optionalNestedProps[accessor] = "array"
+                                optionalNestedProps.append(propObject)
                         else:
+                            propObject['type'] = details["type"]
+                            if details["type"] == "object":
+                                propObject["class"] = makeClassName(attribute.split('.')[-1])
                             if details.get('nullable') == False:
-                                requiredNestedProps[accessor] = details["type"]
+                                requiredNestedProps.append(propObject)
                             else:
-                                optionalNestedProps[accessor] = details["type"]
+                                optionalNestedProps.append(propObject)
 
                     except KeyError:
                         continue
-
-            # turn nestedProps accessors to getter function calls
-            # splitProps = [ accessor.split('.') for accessor in nestedProps ]
-            # toGetters = [ list(map(lambda x: x + '()', accessorList)) for accessorList in splitProps ]
-            # nestedProps = [ '.'.join(gettersList) for gettersList in toGetters ]
-        
-            # print(nestedProps)
             
             render = testTemplate.render(functionName=functionName, 
                                      returnFormat=returnFormat, 
                                      returnType=returnType,
                                      requiredProps=requiredProps,
-                                     optionalProps=optionalProps)
+                                     optionalProps=optionalProps,
+                                     requiredNestedProps=requiredNestedProps,
+                                     optionalNestedProps=optionalNestedProps
+                                    )
             
             return render
 
