@@ -59,15 +59,31 @@ class TestsGenerator:
                     if '-' in _class:
                         try:
                             if propInfo['type'] == "array":
-                                propObject["type"] = "array"
-                                propObject["content-type"] = propInfo["items"]["type"]
+                                propObject["type"] = "list"
                                 
+                                itemsType = propInfo["items"]["type"]
+                                
+                                if itemsType == "object":
+                                    propObject["contentType"] = makeClassName(propName)
+                                elif itemsType == "string":
+                                    propObject["contentType"] = "str"
+                                elif itemsType == "number":
+                                    propObject["contentType"] = "(int, float)"
+                                    
                                 if propInfo["items"].get("nullable") == False:
                                     requiredProps.append(propObject)
                                 else:
                                     optionalProps.append(propObject)
                             else:
-                                propObject["type"] = propInfo["type"]
+                                propType = propInfo["type"]
+                            
+                                if propType == "object":
+                                    propObject["type"] = makeClassName(propName)
+                                elif propType == "string":
+                                    propObject["type"] = "str"
+                                elif propType == "number":
+                                    propObject["type"] = "(int, float)"
+                                
                                 if propInfo.get('nullable') == False:
                                     requiredProps.append(propObject)
                                 else: 
@@ -76,25 +92,52 @@ class TestsGenerator:
                             continue    
 
             for propAccessor, propInfo in getNestedObjectsAccessorRecursion(schemaName, schema):
-                attribute = re.sub(r'[^a-zA-Z]', '', propAccessor)
-                accessor = '.'.join(list(map(lambda x: x + '()', propAccessor.split('.'))))
+                attribute = re.sub(r'[^a-zA-Z]', '', propAccessor) # e.g. stationmeasures
+                existsParam = re.sub(r'[^a-zA-Z.]', '', propAccessor) # e.g. station.measures
+                accessor = '.'.join(list(map(lambda x: x + '()', propAccessor.split('.')))) # e.g. station().measures()
+                parentAccessor = accessor[0:accessor.rfind('.')] # drop everything after (including) the last '.' in the accessor
+                parent = re.sub(r'[^a-zA-Z.]', '', parentAccessor)  # in station.measures, station is parent
+                childAccessor = accessor[accessor.rfind('.')+1:]    # and measures is child
+                child = re.sub(r'[^a-zA-Z.]', '', childAccessor)
+                
                 for propName, details in propInfo.items():
                     propObject = {}
                     try:
                         propObject['attribute'] = attribute
+                        propObject['existsParam'] = existsParam
                         propObject['accessor'] = accessor
+                        propObject['parentAccessor'] = parentAccessor
+                        propObject['childAccessor'] = childAccessor
+                        propObject['parent'] = parent
+                        propObject['child'] = child
                         
                         if details['type'] == "array":
-                            propObject['type'] = "array"
-                            propObject['content-type'] = details["items"]["type"]
+                            propObject['type'] = "list"
+                            
+                            itemsType = details["items"]["type"]
+                                
+                            if itemsType == "object":
+                                propObject["contentType"] = makeClassName(propAccessor.split('.')[-1])
+                            elif itemsType == "string":
+                                propObject["contentType"] = "str"
+                            elif itemsType == "number":
+                                propObject["contentType"] = "(int, float)"
+
+
                             if details['items'].get('nullable') == False:
                                 requiredNestedProps.append(propObject)
                             else:
                                 optionalNestedProps.append(propObject)
                         else:
-                            propObject['type'] = details["type"]
-                            if details["type"] == "object":
-                                propObject["class"] = makeClassName(attribute.split('.')[-1])
+                            propType = details["type"]
+                            
+                            if propType == "object":
+                                propObject["type"] = makeClassName(propAccessor.split('.')[-1])
+                            elif propType == "string":
+                                propObject["type"] = "str"
+                            elif propType == "number":
+                                propObject["type"] = "(int, float)"
+                                
                             if details.get('nullable') == False:
                                 requiredNestedProps.append(propObject)
                             else:

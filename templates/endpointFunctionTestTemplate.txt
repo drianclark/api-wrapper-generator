@@ -4,59 +4,41 @@
 def test{{ pascalCase(functionName) }}():
     data = r.{{functionName}}()
 
-    {% if returnFormat == 'list' -%}
     assert all(isinstance(x, {{ returnType }}) for x in data)
+    {%- for propObject in requiredProps %}
 
-    {% for propObject in requiredProps.items() %}
     assert all(x.{{propObject.attribute}}() != None for x in data)
-    {%- if propObject.type == 'string' %}
-    assert all(isinstance(x.{{propObject.attribute}}(), str) for x in data)       
-    {%- endif -%}
-    {%- if propObject.type == 'number' %}
-    assert all(isinstance(x.{{propObject.attribute}}(), (int, float)) for x in data)       
-    {%- endif -%}
-    {%- if propObject.type == 'array' and propObject.content-type != 'object' %}
-    for x in data.{{propObject.attribute}}:
-        assert all(isinstance(y, {{propObject.content-type}}) for y in x)
-    {% endif %}
-    {%- if propObject.type == 'object' %}
+    {% if propObject.type not in ["str", "(int, float)", "array"] -%}
+    
     try:
-        assert all(isinstance(x.{{propObject.attribute}}(), {{pascalCase(propObject.attribute)}}) for x in data)
+        assert all(isinstance(x.{{propObject.attribute}}(), {{propObject.type}}) for x in data)
     except NameError:
         assert all(isinstance(x.{{propObject.attribute}}(), dict) for x in data)
-    {%- endif -%}
-    {% endfor -%}
     {% else -%}
-    assert isinstance(data, {{ returnType }})
-    {% endif %}
-
-    {% for propObject in optionalProps.items() %}
+    assert all(isinstance(x.{{propObject.attribute}}(), {{propObject.type}}) for x in data)
+    {%- endif -%}
+    {%- if propObject.type == "array" %}
+    assert all(isinstance(x, {{propObject.contentType}}) for x in data.{{propObject.attribute}}())
+    {%- endif -%}
+    {% endfor %}
+    
+    {% for propObject in optionalProps %}
     try:
         dataWith{{propObject.attribute}} = r.{{functionName}}(exists=['{{propObject.attribute}}'], limit=1)[0]
         assert (dataWith{{propObject.attribute}}.{{propObject.attribute}}() != None)
-        {%- if propObject.type == 'string' %}
-        assert isinstance(dataWith{{propObject.attribute}}.{{propObject.attribute}}(), str)
-        {%- endif %}
-        {%- if propObject.type == 'number' %}
-        assert isinstance(dataWith{{propObject.attribute}}.{{propObject.attribute}}(), (int, float)) 
-        {%- endif %}
-        {%- if propObject.type == 'array' and propObject.content-type != 'object' %}
-        for x in data.{{propObject.attribute}}:
-            assert all(isinstance(y, {{propObject.content-type}}) for y in x)
+
+        {%- if propObject.type not in ["str", "(int, float)", "array"] %}
+        try:
+            assert isinstance(dataWith{{propObject.attribute}}.{{propObject.attribute}}(), {{propObject.type}})
+        except NameError:
+            assert isinstance(dataWith{{propObject.attribute}}.{{propObject.attribute}}(), dict)
+    
+        {% else %}
+        assert isinstance(dataWith{{propObject.attribute}}.{{propObject.attribute}}(), {{propObject.type}})
         {% endif %}
-        {%- if propObject.type == 'object' %}
-        try:
-            assert all(isinstance(x.{{propObject.attribute}}(), {{pascalCase(propObject.attribute)}}) for x in data)
-        except NameError:
-            assert all(isinstance(x.{{propObject.attribute}}(), dict) for x in data)
-        {%- endif -%}
-        {%- if propObject.type == 'object' %}
-        try:
-            assert isinstance(dataWith{{propObject.attribute}}.{{propObject.attribute}}(), {{pascalCase(propObject.attribute)}}) 
-        
-        except NameError:
-            assert isinstance(dataWith{{propObject.attribute}}.{{propObject.attribute}}(), dict) 
-        {%- endif %}
+    {% if propObject.type == "array" %}
+        assert all(isinstance(x, {{propObject.contentType}}) for x in dataWith{{propObject.attribute}}.{{propObject.attribute}}())
+    {% endif -%}
 
     except IndexError:
         print('No data found with prop {{propObject.attribute}}')
@@ -64,51 +46,71 @@ def test{{ pascalCase(functionName) }}():
     except ValueError:
         print('Invalid http request for prop {{propObject.attribute}}')
 
-    {%- endfor -%}
+    {% endfor %}
 
     {%- for propObject in requiredNestedProps %}
     try:
-        dataWith{{propObject.attribute}} = r.{{functionName}}(limit=1)[0]
+        dataWith{{propObject.attribute}} = r.{{functionName}}(exists=['{{propObject.parent}}'], limit=1)[0]
         assert (dataWith{{propObject.attribute}}.{{propObject.accessor}} != None)
-        {%- if propObject.type == 'string' %}
-        assert isinstance(dataWith{{propObject.attribute}}.{{propObject.accessor}}, str)
-        {% endif %}
-        {%- if propObject.type == 'number' %}
-        assert isinstance(dataWith{{propObject.attribute}}.{{propObject.accessor}}, (int, float)) 
-        {% endif %}
-        {%- if propObject.type == 'array' and propObject.content-type != 'object' %}
-        for x in data.{{propObject.attribute}}:
-            assert all(isinstance(y, {{propObject.content-type}}) for y in x)
-        {% endif %}
-        {%- if propObject.type == 'object' %}
-        assert isinstance(dataWith{{propObject.attribute}}.{{propObject.accessor}}, {{propObject.class}}) 
-        {% endif %}
-    except IndexError:
-        print('No data found with prop {{propObject.attribute}}')
+        
+        {%- if propObject.type not in ["str", "(int, float)", "array"] %}
+        try:
+            assert isinstance(dataWith{{propObject.attribute}}.{{propObject.accessor}}, {{propObject.type}})
+        except NameError:
+            assert isinstance(dataWith{{propObject.attribute}}.{{propObject.accessor}}, dict)
 
-    {%- endfor %}
+        {% else %}
+        assert isinstance(dataWith{{propObject.attribute}}.{{propObject.accessor}}, {{propObject.type}})
+        {% endif %}
+    {% if propObject.type == 'array' %}
+        assert isinstance(x, {{propObject.contentType}}) for x in dataWith{{propObject.attribute}}.{{propObject.accessor}}
+    {% endif -%}
+        
+    except IndexError:
+        print('No data found with prop {{propObject.existsParam}}')
+    
+    except ValueError:
+        print('Invalid http request for prop {{propObject.existsParam}}')
+
+    except AttributeError:
+        try:
+            if isinstance(dataWith{{propObject.attribute}}.{{propObject.parentAccessor}}, list):    
+                assert all(isinstance(x.{{propObject.childAccessor}}, {{propObject.type}}) for x in dataWith{{propObject.attribute}}.{{propObject.parentAccessor}})
+        except AttributeError: 
+            print('{{propObject.existsParam}}: AttributeError most likely due to array wrongly specified as object in spec')
+            return
+        
+        print('{{propObject.existsParam}}: AttributeError most likely due to a null ancestor attribute')
+
+    {% endfor %}
 
     {%- for propObject in optionalNestedProps %}
     try:
-        dataWith{{propObject.attribute}} = r.{{functionName}}(exists=['{{propObject.attribute}}'], limit=1)[0]
+        dataWith{{propObject.attribute}} = r.{{functionName}}(exists=['{{propObject.existsParam}}'], limit=1)[0]
         assert (dataWith{{propObject.attribute}}.{{propObject.accessor}} != None)
-        {%- if propObject.type == 'string' %}
-        assert isinstance(dataWith{{propObject.attribute}}.{{propObject.accessor}}, str)
-        {%- endif -%}
-        {%- if propObject.type == 'number' %}
-        assert isinstance(dataWith{{propObject.attribute}}.{{propObject.accessor}}, (int, float)) 
+
+        {%- if propObject.type not in ["str", "(int, float)", "array"] %}
+        try:
+            assert isinstance(dataWith{{propObject.attribute}}.{{propObject.accessor}}, {{propObject.type}})
+        except NameError:
+            assert isinstance(dataWith{{propObject.attribute}}.{{propObject.accessor}}, dict)
+
+        {% else %}
+        assert isinstance(dataWith{{propObject.attribute}}.{{propObject.accessor}}, {{propObject.type}})
         {% endif %}
-        {%- if propObject.type == 'array' and propObject.content-type != 'object' %}
-        for x in data.{{propObject.attribute}}:
-            assert all(isinstance(y, {{propObject.content-type}}) for y in x)
-        {% endif %}
-        {%- if propObject.type == 'object' %}
-        assert isinstance(dataWith{{propObject.attribute}}.{{propObject.accessor}}, {{propObject.class}}) 
-        {% endif %}
+    {% if propObject.type == 'array' %}
+        assert isinstance(x, {{propObject.contentType}}) for x in dataWith{{propObject.attribute}}.{{propObject.accessor}}
+    {% endif -%}
+
     except IndexError:
-        print('No data found with prop {{propObject.attribute}}')
+        print('No data found with prop {{propObject.existsParam}}')
 
     except ValueError:
         print('Invalid http request for prop {{propObject.attribute}}')
+
+    except AttributeError:
+        try:
+            assert all(isinstance(x.{{propObject.childAccessor}}, {{propObject.type}}) for x in dataWith{{propObject.attribute}}.{{propObject.parentAccessor}})
+        except AttributeError: 
+            print('{{propObject.existsParam}}: AttributeError most likely due to array wrongly specified as object in spec')
     {% endfor %}
-        
