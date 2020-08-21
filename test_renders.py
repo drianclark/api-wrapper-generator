@@ -1,12 +1,12 @@
 from renders.renders import Renders
-from renders.ObservationType import ObservationType
-from renders.ObservedProperty import ObservedProperty
-from renders.SampleOf import SampleOf
-from renders.ValueStatistic import ValueStatistic
 from renders.Station import Station
-from renders.Reading import Reading
-from renders.Status import Status
 from renders.Measure import Measure
+from renders.ObservedProperty import ObservedProperty
+from renders.ValueStatistic import ValueStatistic
+from renders.ObservationType import ObservationType
+from renders.Status import Status
+from renders.Reading import Reading
+from renders.SampleOf import SampleOf
 
 
 r = Renders()

@@ -26,17 +26,33 @@ class EndpointFunctionsGenerator:
         self.endpoints = {}
             
         for endpoint, endpointInfo in paths.items():
+            
             # collecting all distinct endpoints, ignoring the _view params
-            if "?_view" not in endpoint:
+            # and creating a dictionary for each
+            
+            if "?_view" not in endpoint:    # for default views
+                
+                """
+                    For endpoint '/id/measures/{measure}/readings':
+                        constructEndpointFunctionName(endpoint) => readingsByMeasure
+                        
+                    This endpoint naming pattern may not hold across different APIs
+                """
                 functionName = constructEndpointFunctionName(endpoint)
                         
                 self.endpoints[endpoint] = {}
                 self.endpoints[endpoint]["paths"] = [endpoint]
                 self.endpoints[endpoint]["name"] = functionName
                 
+                """
+                 url parameters and parameters embedded within the endpoint path, e.g.
+                 the last id in '/id/measures/{id}' are stored in different parts
+                 of the spec
+                """
                 parameters = endpointInfo["parameters"]
                 parameters += endpointInfo["get"]["parameters"]
                     
+                # using set() to get rid of duplicates
                 self.endpoints[endpoint]["requiredParameters"] = set()
                 self.endpoints[endpoint]["optionalParameters"] = set()
                 required = self.endpoints[endpoint]["requiredParameters"]
@@ -54,6 +70,8 @@ class EndpointFunctionsGenerator:
                                 
                         else:
                             optional.add((paramName, makeParamName(paramName)))  
+                            
+            # adding the "view" parameter to endpoints that should have it
             else:
                 # get base endpoint, which is the string before the '?'
                 baseEndpoint = endpoint.split('?',1)[0]
@@ -67,9 +85,16 @@ class EndpointFunctionsGenerator:
             
             requiredParamsField = [p[1] for p in requiredParams]
             optionalParamsField = [p[1] + "=None" for p in optionalParams]
+            
+            """
+            paramsField is inserted in the argument field, e.g.
+            
+            def someFunction({paramsField}):
+            """
             paramsField = ',\n'.join(requiredParamsField + optionalParamsField)
             returnType = self.mappings[endpoint]
             
+            # generates the code for one function
             render = template.render(name=name,
                                      paramsField=paramsField, 
                                      optionalParams=optionalParams, 
@@ -90,8 +115,10 @@ class EndpointFunctionsGenerator:
         
         env = Environment(loader=FileSystemLoader('templates'))
         template = env.get_template('endpointFunctionsTemplate.txt')
+        # mappings specified to know what to import
         mappings = set([c for c in self.mappings.values() if '[' not in c])
         
+        # generates the contents of the generate endpoint functions file
         endpointFunctions = template.render(functionStrings=functionStrings, packageName=self.directory, mappings=mappings)    
         
         if not os.path.exists(self.directory):

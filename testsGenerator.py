@@ -26,6 +26,10 @@ class TestsGenerator:
         
         self.nestedClasses = set()
         for schema, className in self.schemaMappings.items():
+            """
+            getObjectsRecursion yields all property:value (including nested ones)
+            pairs for a schema
+            """
             for _class,_prop in getObjectsRecursion(schema, schemas[schema]):
                 if '-' not in _class:
                     self.nestedClasses.add(makeSingular(makeClassName(_class)))
@@ -35,7 +39,12 @@ class TestsGenerator:
             env = Environment(loader=FileSystemLoader('templates'))
             testTemplate = env.get_template('endpointFunctionTestTemplate.txt')
                         
-            # construct the function name using the endpoint path
+            """
+                For endpoint '/id/measures/{measure}/readings':
+                    constructEndpointFunctionName(endpoint) => readingsByMeasure
+                        
+                This endpoint naming pattern may not hold across different APIs
+            """
             functionName = constructEndpointFunctionName(endpoint)
             returnFormat = 'list' if '[' in returnType else 'object'
             # removing brackets if present
@@ -44,10 +53,9 @@ class TestsGenerator:
             schemaName = getSchemaNameFromEndpoint(endpoint, self.spec)
             schema = getSchemaFromEndpoint(endpoint, self.spec)
             
-            # dictionary with key base class and value return type
+            # list of dictionaries holding property objects
             requiredProps = []
             optionalProps = []
-            # list of dictionaries for each prop
             requiredNestedProps = []
             optionalNestedProps = []
             
@@ -63,6 +71,8 @@ class TestsGenerator:
                                 
                                 itemsType = propInfo["items"]["type"]
                                 
+                                # if type of prop is object, it must be a class (or
+                                # a dict in some cases- this is handled in the template)
                                 if itemsType == "object":
                                     propObject["contentType"] = makeClassName(propName)
                                 elif itemsType == "string":
@@ -88,6 +98,7 @@ class TestsGenerator:
                                     requiredProps.append(propObject)
                                 else: 
                                     optionalProps.append(propObject)
+                        # some props only have $ref
                         except KeyError:
                             continue    
 
@@ -95,10 +106,10 @@ class TestsGenerator:
                 attribute = re.sub(r'[^a-zA-Z]', '', propAccessor) # e.g. stationmeasures
                 existsParam = re.sub(r'[^a-zA-Z.]', '', propAccessor) # e.g. station.measures
                 accessor = '.'.join(list(map(lambda x: x + '()', propAccessor.split('.')))) # e.g. station().measures()
-                parentAccessor = accessor[0:accessor.rfind('.')] # drop everything after (including) the last '.' in the accessor
-                parent = re.sub(r'[^a-zA-Z.]', '', parentAccessor)  # in station.measures, station is parent
-                childAccessor = accessor[accessor.rfind('.')+1:]    # and measures is child
-                child = re.sub(r'[^a-zA-Z.]', '', childAccessor)
+                parentAccessor = accessor[0:accessor.rfind('.')]    # station().measures() => station()
+                parent = re.sub(r'[^a-zA-Z.]', '', parentAccessor)  # in station().measures() => station
+                childAccessor = accessor[accessor.rfind('.')+1:]    # station().measures() => measures()
+                child = re.sub(r'[^a-zA-Z.]', '', childAccessor)    # station().measures() => measures
                 
                 for propName, details in propInfo.items():
                     propObject = {}
@@ -158,13 +169,16 @@ class TestsGenerator:
             return render
 
         tests = []
+        # classes is the set of return types specified in the config
         classes = set()
         for endpoint, returnType in self.endpointMappings.items():
             if '{' not in endpoint:
                 tests.append(generateFunctionTest(endpoint, returnType))
                 returnType = returnType[1:-1] if '[' in returnType else returnType
                 classes.add(returnType)
-                
+        
+        # combining classes specified in config with nested classes
+        # as they make up all the necessary imports
         imports = classes.union(self.nestedClasses)
         env = Environment(loader=FileSystemLoader('templates'))
         template = env.get_template('endpointFunctionTestsTemplate.txt')

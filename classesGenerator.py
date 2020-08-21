@@ -20,6 +20,7 @@ class ClassesGenerator:
         env = Environment(loader=FileSystemLoader('templates'))
         template = env.get_template('classTemplate.txt')
         
+        # classProps has key class name and value array of properties 
         classProps = defaultdict(list)
         
         with open(self.spec) as f:
@@ -27,6 +28,10 @@ class ClassesGenerator:
             
         # collecting the properties for each schema
         for schema, className in self.classes.items():
+            """
+            getObjectsRecursion yields all property:value (including nested ones)
+            pairs for a schema
+            """
             for _class,_prop in getObjectsRecursion(schema, schemas[schema]):
                 classProps[makeSingular(_class)].append(_prop)
         
@@ -36,21 +41,25 @@ class ClassesGenerator:
             try:
                 className = self.classes[schema]
                 
-                # if there is a nested class of the same name,
-                # include its properties to the base class props
+                """ 
+                if there is a nested class of the same name,
+                include its properties to the corresponding base class properties
+                e.g. the nested class `measures` in the hydrology API
+                is the same as the base class 'measure'
+                """
                 if className.lower() in classProps:
                     props += classProps[className.lower()]
                     
             # NESTED CLASS CLASE
             except KeyError:
                 className = makeClassName(schema)
-                # print(className)
                 
                 # if there is a nested class of the same name, ignore it
                 # because we've already added its props to the base class
                 if className in self.classes.values():
                     continue
             
+            # objectAttributes is used to determine imports in the generated class
             objectAttributes = set()
             for prop in props:
                 for propName, propInfo in prop.items():
