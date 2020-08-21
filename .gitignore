@@ -2,3 +2,7 @@
 __pycache__
 model-doc-hydro
 spotify-mt-oas3.yaml
+hydrology-oas.json
+backup_config.json
+inspectingSchemas.py
+test.py
